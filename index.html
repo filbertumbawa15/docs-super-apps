@@ -43,9 +43,6 @@
     <a href="#objek-izin">Objek izin keramaian</a>
     <a href="#paginasi">Paginasi</a>
     <a href="#status">Daftar status</a>
-    <div class="group">Panduan</div>
-    <a href="#contoh-kode">Contoh kode</a>
-    <a href="data.html">Halaman tampilan data &rarr;</a>
   </aside>
 
   <main class="doc-main" id="content">
@@ -253,52 +250,6 @@
       <p class="small text-body-secondary">SKCK yang dikembalikan hanya berstatus <code>approved</code>, <code>completed</code>, atau <code>waiting_payment</code>. Daftar lengkap status izin keramaian belum didokumentasikan.</p>
     </section>
 
-    <section id="contoh-kode">
-      <h2>Contoh kode <a class="anchor" href="#contoh-kode">#</a></h2>
-      <ul class="nav nav-tabs code-tabs" role="tablist">
-        <li class="nav-item" role="presentation"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#ex-js" type="button" role="tab">JavaScript</button></li>
-        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#ex-php" type="button" role="tab">PHP (Laravel)</button></li>
-        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#ex-curl" type="button" role="tab">cURL</button></li>
-      </ul>
-      <div class="tab-content">
-        <div class="tab-pane fade show active" id="ex-js" role="tabpanel"><div class="code-wrap"><pre>async function lookup(nik, services) {
-  const res = await fetch(`${HOST}/api/v1/external/service-applications/lookup`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'App-Id': APP_ID,
-      'Access-Key': ACCESS_KEY,
-    },
-    body: JSON.stringify({ nik, services, page: 1, per_page: 20 }),
-  });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const json = await res.json();
-  return json.data; // { user, skck, crowd_permit }
-}</pre></div></div>
-        <div class="tab-pane fade" id="ex-php" role="tabpanel"><div class="code-wrap"><pre>use Illuminate\Support\Facades\Http;
-
-$response = Http::withHeaders([
-        'App-Id'     =&gt; config('services.layanan.app_id'),
-        'Access-Key' =&gt; config('services.layanan.access_key'),
-    ])
-    -&gt;acceptJson()
-    -&gt;post(config('services.layanan.host').'/api/v1/external/service-applications/lookup', [
-        'nik'      =&gt; $nik,
-        'services' =&gt; ['skck', 'crowd_permit'],
-        'page'     =&gt; 1,
-        'per_page' =&gt; 20,
-    ]);
-
-$data = $response-&gt;throw()-&gt;json('data');</pre></div></div>
-        <div class="tab-pane fade" id="ex-curl" role="tabpanel"><div class="code-wrap"><pre>curl -X POST "$HOST/api/v1/external/service-applications/lookup" \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json" \
-  -H "App-Id: $APP_ID" \
-  -H "Access-Key: $ACCESS_KEY" \
-  -d '{"nik":"0000000000000001","services":["crowd_permit"]}'</pre></div></div>
-      </div>
-    </section>
 
 
 
@@ -313,7 +264,6 @@ $data = $response-&gt;throw()-&gt;json('data');</pre></div></div>
     <a href="#endpoint">Endpoint</a>
     <a href="#respons">Respons</a>
     <a href="#status">Status</a>
-    <a href="#contoh-kode">Contoh kode</a>
   </nav>
 </div>
 
