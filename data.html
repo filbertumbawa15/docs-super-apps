@@ -67,9 +67,9 @@
             </select>
           </div>
 
-          <div class="alert alert-success small py-2 mb-3 d-none" id="conn-status">
-            Terhubung ke <span class="font-monospace" id="conn-host"></span><br>
-            <span class="text-body-secondary">Koneksi diatur lewat ENV di server. Pastikan GlobalProtect aktif.</span>
+          <div class="alert alert-secondary small py-2 mb-3 d-none d-flex align-items-center gap-2" id="conn-status" role="status">
+            <span class="spinner-border spinner-border-sm" id="conn-spin" aria-hidden="true"></span>
+            <span id="conn-text">Memeriksa koneksi ke API SKCK...</span>
           </div>
 
           <div class="accordion mb-3" id="conn">
@@ -293,6 +293,14 @@
     $('alert-box').innerHTML = html ? `<div class="alert alert-${kind} alert-dismissible fade show" role="alert">${html}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button></div>` : '';
   }
 
+  function setConn(st) {
+    if ($('conn-status').classList.contains('d-none')) return;
+    const ok = st === 'ok';
+    $('conn-status').className = 'alert small py-2 mb-3 d-flex align-items-center gap-2 ' + (ok ? 'alert-success' : 'alert-danger');
+    $('conn-spin').classList.add('d-none');
+    $('conn-text').textContent = ok ? 'Terhubung ke API SKCK' : 'Gagal Menghubungkan ke API SKCK';
+  }
+
   function selectedServices() {
     return ['svc-skck', 'svc-ik'].map(id => $(id)).filter(c => c.checked).map(c => c.value);
   }
@@ -335,6 +343,7 @@
         body: JSON.stringify(body)
       });
       const json = await res.json().catch(() => null);
+      setConn(res.ok || (res.status < 500 && ![401, 403].includes(res.status)) ? 'ok' : 'fail');
       if (!res.ok || !json || !json.data) {
         const msg = json && json.message ? (json.message.description || json.message.title || '') : '';
         showAlert('danger', `<strong>Gagal (HTTP ${res.status}).</strong> ${esc(msg)}`);
@@ -344,6 +353,7 @@
       showAlert('', '');
       render(json, body.nik);
     } catch (e) {
+      setConn('fail');
       showAlert('danger', '<strong>Tidak bisa menghubungi API.</strong> Periksa host dan pengaturan CORS server. Jika halaman ini dibuka dari pratinjau Claude, panggilan ke host lain memang diblokir. Jalankan file ini dari server Anda sendiri.');
     } finally {
       $('spin').classList.add('d-none'); $('btn-search').disabled = false;
@@ -382,8 +392,10 @@
     $('app-id').value = CFG.appId;
     $('access-key').value = CFG.accessKey;
     $('conn').classList.add('d-none');
-    $('conn-host').textContent = CFG.apiHost;
     $('conn-status').classList.remove('d-none');
+    // Cek apakah host API terjangkau (mis. GlobalProtect aktif). Tanpa kredensial, tanpa data.
+    fetch(CFG.apiHost.replace(/\/+$/, '') + '/', { mode: 'no-cors', cache: 'no-store' })
+      .then(() => setConn('ok'), () => setConn('fail'));
   } else if (CFG.apiHost) {
     $('host').value = CFG.apiHost;
   }
