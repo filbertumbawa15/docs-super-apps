@@ -5,7 +5,7 @@ Dokumentasi API lookup pengajuan SKCK dan Izin Keramaian, bergaya Bootstrap Docs
 - `index.html` — dokumentasi endpoint `POST /api/v1/external/service-applications/lookup`
 - `data.html` — halaman untuk menampilkan data dari endpoint (tabel, badge status, detail, paginasi)
 - `assets/` — Bootstrap 5.3.3, CSS dan JS halaman
-- `deploy/install-docs.sh` — script instalasi ke VPS (Nginx, port 8075)
+- `deploy/install-docs.sh` — script instalasi ke VPS (Nginx, port 5173)
 
 ## Jalankan di localhost (disarankan, tanpa masalah CORS)
 
@@ -45,5 +45,5 @@ Lihat `.env.example` untuk format ENV.
 ## Catatan
 
 - API hanya bisa diakses lewat **GlobalProtect**. Browser pengguna harus tersambung VPN saat menekan "Cari ke API".
-- Server API harus mengizinkan **CORS** dari origin halaman ini (mis. `http://IP-VPS:8075`).
+- Server API harus mengizinkan **CORS** dari origin halaman ini (mis. `http://IP-VPS:5173`).
 - Access-Key ikut terkirim ke browser. Aktifkan login halaman (ditanyakan oleh script) agar hanya tim yang bisa membukanya.

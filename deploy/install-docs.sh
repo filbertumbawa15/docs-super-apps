@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Instalasi / pembaruan situs dokumentasi docs-super-apps di VPS (Ubuntu/Debian).
-# Menyajikan file statis lewat Nginx di port khusus (default 8075).
+# Menyajikan file statis lewat Nginx di port khusus (default 5173).
 #
 # Konfigurasi API (host, App-Id, Access-Key) dibaca dari file ENV di server:
 #   /etc/docs-super-apps/docs.env   (pemilik root, mode 600)
@@ -18,7 +18,7 @@ set -euo pipefail
 REPO_URL="${REPO_URL:-https://github.com/filbertumbawa15/docs-super-apps.git}"
 BRANCH="${BRANCH:-main}"
 APP_DIR="${APP_DIR:-/var/www/docs-super-apps}"
-PORT="${PORT:-8075}"
+PORT="${PORT:-5173}"
 SITE_NAME="docs-super-apps"
 ENV_DIR="/etc/${SITE_NAME}"
 ENV_FILE="${ENV_DIR}/docs.env"
@@ -56,7 +56,7 @@ if command -v ss >/dev/null 2>&1; then
   USERS="$(ss -ltnpH "sport = :${PORT}" 2>/dev/null || true)"
   if [[ -n "$USERS" ]] && ! grep -q nginx <<<"$USERS"; then
     echo "$USERS"
-    fail "Port ${PORT} sudah dipakai program lain. Pilih port lain, mis. sudo PORT=8076 bash $0"
+    fail "Port ${PORT} sudah dipakai program lain. Pilih port lain, mis. sudo PORT=5174 bash $0"
   fi
 fi
 
