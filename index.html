@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Docs API Lookup Layanan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="assets/bootstrap.min.css">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/common.js"></script>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark doc-navbar">
+  <div class="container-fluid px-3 px-lg-4">
+    <a class="navbar-brand d-flex align-items-center" href="#pengantar"><span class="brand-mark">API</span>Layanan Eksternal</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topnav" aria-controls="topnav" aria-expanded="false" aria-label="Buka navigasi">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="topnav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link active" aria-current="page" href="index.html">Dokumentasi</a></li>
+        <li class="nav-item"><a class="nav-link" href="data.html">Tampilan Data</a></li>
+        <li class="nav-item d-lg-none"><a class="nav-link" href="#endpoint">Endpoint</a></li>
+        <li class="nav-item d-lg-none"><a class="nav-link" href="#respons">Respons</a></li>
+        <li class="nav-item d-lg-none"><a class="nav-link" href="#komponen">Komponen Bootstrap</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="doc-layout">
+  <aside class="doc-sidebar" aria-label="Navigasi dokumentasi">
+    <div class="group">Memulai</div>
+    <a href="#pengantar">Pengantar</a>
+    <a href="#mulai-cepat">Mulai cepat</a>
+    <a href="#autentikasi">Autentikasi</a>
+    <div class="group">Referensi API</div>
+    <a href="#endpoint">Endpoint lookup</a>
+    <a href="#parameter">Parameter body</a>
+    <a href="#respons">Struktur respons</a>
+    <a href="#objek-skck">Objek SKCK</a>
+    <a href="#objek-izin">Objek izin keramaian</a>
+    <a href="#paginasi">Paginasi</a>
+    <a href="#status">Daftar status</a>
+    <div class="group">Panduan</div>
+    <a href="#contoh-kode">Contoh kode</a>
+    <a href="#komponen">Komponen Bootstrap</a>
+    <a href="#catatan">Catatan &amp; pertanyaan</a>
+    <a href="data.html">Halaman tampilan data &rarr;</a>
+  </aside>
+
+  <main class="doc-main" id="content">
+
+    <section id="pengantar">
+      <span class="badge text-bg-primary mb-3">v1</span>
+      <h1>API Lookup Pengajuan SKCK &amp; Izin Keramaian</h1>
+      <p class="lead mt-3">Satu endpoint untuk mengambil profil singkat pemohon beserta riwayat pengajuan SKCK dan Izin Keramaian berdasarkan NIK. Dipakai oleh aplikasi eksternal yang sudah punya <code>App-Id</code> dan <code>Access-Key</code>.</p>
+      <div class="endpoint mt-4"><span class="method">POST</span><span>/api/v1/external/service-applications/lookup</span></div>
+    </section>
+
+    <section id="mulai-cepat">
+      <h2>Mulai cepat <a class="anchor" href="#mulai-cepat">#</a></h2>
+      <ol>
+        <li>Minta <strong>APP_ID</strong> dan <strong>Access-Key</strong> ke pengelola API.</li>
+        <li>Kirim request <code>POST</code> berisi NIK ke endpoint lookup.</li>
+        <li>Baca <code>data.user</code>, <code>data.skck</code>, dan <code>data.crowd_permit</code> dari respons, lalu tampilkan.</li>
+      </ol>
+      <div class="code-wrap"><pre>curl -X POST "$HOST/api/v1/external/service-applications/lookup" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -H "App-Id: $APP_ID" \
+  -H "Access-Key: $ACCESS_KEY" \
+  -d '{"nik":"0000000000000001","page":1,"per_page":20}'</pre></div>
+    </section>
+
+    <section id="autentikasi">
+      <h2>Autentikasi <a class="anchor" href="#autentikasi">#</a></h2>
+      <p>Setiap request wajib membawa dua header identitas. API ini tidak memakai skema <code>Bearer</code>.</p>
+      <div class="table-responsive">
+        <table class="table table-bordered param-table stack">
+          <thead class="table-light"><tr><th>Header</th><th>Wajib</th><th>Isi</th></tr></thead>
+          <tbody>
+            <tr><td><code>App-Id</code></td><td><span class="badge text-bg-danger">wajib</span></td><td>APP_ID aplikasi pemanggil yang terdaftar.</td></tr>
+            <tr><td><code>Access-Key</code></td><td><span class="badge text-bg-danger">wajib</span></td><td>Token akses, dikirim apa adanya <strong>tanpa</strong> awalan <code>Bearer</code>.</td></tr>
+            <tr><td><code>Content-Type</code></td><td><span class="badge text-bg-danger">wajib</span></td><td><code>application/json</code></td></tr>
+            <tr><td><code>Accept</code></td><td><span class="badge text-bg-secondary">disarankan</span></td><td><code>application/json</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout callout-danger">
+        <p><strong>Jangan taruh Access-Key di frontend produksi.</strong> Siapa pun bisa membaca header dari browser. Panggil API ini dari backend Anda, lalu teruskan hasilnya ke halaman.</p>
+      </div>
+    </section>
+
+    <section id="endpoint">
+      <h2>Endpoint lookup <a class="anchor" href="#endpoint">#</a></h2>
+      <div class="endpoint"><span class="method">POST</span><span>{{host}}/api/v1/external/service-applications/lookup</span></div>
+      <p class="mt-3">Mengembalikan profil pemohon dan daftar pengajuan untuk NIK yang dikirim. Layanan yang tidak diminta tetap ada di respons sebagai array kosong, jadi bentuk respons selalu sama.</p>
+    </section>
+
+    <section id="parameter">
+      <h3>Parameter body <a class="anchor" href="#parameter">#</a></h3>
+      <div class="table-responsive">
+        <table class="table table-bordered param-table stack">
+          <thead class="table-light"><tr><th>Field</th><th>Tipe</th><th>Wajib</th><th>Keterangan</th></tr></thead>
+          <tbody>
+            <tr><td><code>nik</code></td><td>string</td><td><span class="badge text-bg-danger">wajib</span></td><td>NIK pemohon, 16 digit.</td></tr>
+            <tr><td><code>services</code></td><td>string[]</td><td><span class="badge text-bg-secondary">opsional</span></td><td><code>"skck"</code>, <code>"crowd_permit"</code>, atau keduanya. Jika tidak dikirim, keduanya diambil.</td></tr>
+            <tr><td><code>page</code></td><td>integer</td><td><span class="badge text-bg-secondary">opsional</span></td><td>Nomor halaman. Default <code>1</code>.</td></tr>
+            <tr><td><code>per_page</code></td><td>integer</td><td><span class="badge text-bg-secondary">opsional</span></td><td>Jumlah data per halaman. Default <code>20</code>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul class="nav nav-tabs code-tabs" role="tablist">
+        <li class="nav-item" role="presentation"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#body-all" type="button" role="tab">Kedua layanan</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#body-skck" type="button" role="tab">SKCK saja</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#body-ik" type="button" role="tab">Izin keramaian saja</button></li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane fade show active" id="body-all" role="tabpanel"><div class="code-wrap"><pre>{
+  "nik": "0000000000000001",
+  "page": 1,
+  "per_page": 20
+}</pre></div></div>
+        <div class="tab-pane fade" id="body-skck" role="tabpanel"><div class="code-wrap"><pre>{
+  "nik": "0000000000000001",
+  "services": ["skck"],
+  "page": 1,
+  "per_page": 20
+}</pre></div></div>
+        <div class="tab-pane fade" id="body-ik" role="tabpanel"><div class="code-wrap"><pre>{
+  "nik": "0000000000000001",
+  "services": ["crowd_permit"],
+  "page": 1,
+  "per_page": 20
+}</pre></div></div>
+      </div>
+    </section>
+
+    <section id="respons">
+      <h2>Struktur respons <a class="anchor" href="#respons">#</a></h2>
+      <p>Respons memakai amplop standar. Isi utama ada di <code>data</code>, paginasi di <code>info</code>.</p>
+      <div class="table-responsive">
+        <table class="table table-bordered param-table stack">
+          <thead class="table-light"><tr><th>Field</th><th>Tipe</th><th>Keterangan</th></tr></thead>
+          <tbody>
+            <tr><td><code>status</code></td><td>boolean</td><td><code>true</code> jika berhasil.</td></tr>
+            <tr><td><code>code</code></td><td>integer</td><td>Kode HTTP, mis. <code>200</code>.</td></tr>
+            <tr><td><code>timestamp</code></td><td>string</td><td>Waktu respons, zona WIB (<code>+07:00</code>).</td></tr>
+            <tr><td><code>message.title</code></td><td>string</td><td>Judul pesan, mis. "Pengajuan Layanan".</td></tr>
+            <tr><td><code>message.description</code></td><td>string</td><td>Deskripsi, mis. "Lookup pengajuan selesai".</td></tr>
+            <tr><td><code>data.user</code></td><td>object | null</td><td><code>id</code> (integer) dan <code>full_name</code>. Bernilai <code>null</code> jika NIK tidak punya akun.</td></tr>
+            <tr><td><code>data.skck</code></td><td>array</td><td>Daftar <a href="#objek-skck">objek SKCK</a>.</td></tr>
+            <tr><td><code>data.crowd_permit</code></td><td>array</td><td>Daftar <a href="#objek-izin">objek izin keramaian</a>.</td></tr>
+            <tr><td><code>info</code></td><td>object</td><td>Lihat <a href="#paginasi">paginasi</a>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="code-wrap"><pre>{
+  "status": true,
+  "code": 200,
+  "timestamp": "2026-11-23T10:00:00+07:00",
+  "message": {
+    "title": "Pengajuan Layanan",
+    "description": "Lookup pengajuan selesai"
+  },
+  "data": {
+    "user": { "id": 1042, "full_name": "User Uji" },
+    "skck": [
+      {
+        "id": "01K7QDR1B8NFD6ZF886SNS9D44",
+        "registration_number": "SKCK-TEST-1",
+        "status": "completed",
+        "submitted_at": "2026-11-23T02:00:00Z",
+        "purpose": "Pekerjaan",
+        "print_location": "Polres Contoh",
+        "classification": "DALAM NEGERI",
+        "application_path": "/skck/tes-final.pdf"
+      }
+    ],
+    "crowd_permit": [
+      {
+        "id": 73,
+        "registration_number": "IK-TEST-1",
+        "status": "schedule_confirmed",
+        "submitted_at": "2026-11-23T01:00:00Z",
+        "activity_name": "Pertemuan warga",
+        "activity_type_name": "Pertemuan",
+        "requested_review_date": "2026-11-26"
+      }
+    ]
+  },
+  "info": { "current_page": 1, "per_page": 20, "total": 2, "last_page": 1 }
+}</pre></div>
+    </section>
+
+    <section id="objek-skck">
+      <h3>Objek SKCK <a class="anchor" href="#objek-skck">#</a></h3>
+      <div class="table-responsive">
+        <table class="table table-bordered param-table stack">
+          <thead class="table-light"><tr><th>Field</th><th>Tipe</th><th>Keterangan</th></tr></thead>
+          <tbody>
+            <tr><td><code>id</code></td><td>string (ULID)</td><td>ID pengajuan.</td></tr>
+            <tr><td><code>registration_number</code></td><td>string</td><td>Nomor registrasi.</td></tr>
+            <tr><td><code>status</code></td><td>string</td><td>Salah satu dari <a href="#status">status SKCK</a>.</td></tr>
+            <tr><td><code>submitted_at</code></td><td>string</td><td>Waktu pengajuan, ISO 8601 UTC (<code>Z</code>).</td></tr>
+            <tr><td><code>purpose</code></td><td>string</td><td>Keperluan, mis. "Pekerjaan".</td></tr>
+            <tr><td><code>print_location</code></td><td>string</td><td>Lokasi cetak, mis. "Polres Contoh".</td></tr>
+            <tr><td><code>classification</code></td><td>string</td><td>Klasifikasi, mis. "DALAM NEGERI".</td></tr>
+            <tr><td><code>application_path</code></td><td>string</td><td>Path dokumen PDF SKCK, relatif terhadap host.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="objek-izin">
+      <h3>Objek izin keramaian <a class="anchor" href="#objek-izin">#</a></h3>
+      <div class="table-responsive">
+        <table class="table table-bordered param-table stack">
+          <thead class="table-light"><tr><th>Field</th><th>Tipe</th><th>Keterangan</th></tr></thead>
+          <tbody>
+            <tr><td><code>id</code></td><td>integer</td><td>ID pengajuan. Perhatikan: berbeda tipe dengan ID SKCK.</td></tr>
+            <tr><td><code>registration_number</code></td><td>string</td><td>Nomor registrasi.</td></tr>
+            <tr><td><code>status</code></td><td>string</td><td>Status pengajuan, mis. <code>schedule_confirmed</code>.</td></tr>
+            <tr><td><code>submitted_at</code></td><td>string</td><td>Waktu pengajuan, ISO 8601 UTC.</td></tr>
+            <tr><td><code>activity_name</code></td><td>string</td><td>Nama kegiatan.</td></tr>
+            <tr><td><code>activity_type_name</code></td><td>string</td><td>Jenis kegiatan.</td></tr>
+            <tr><td><code>requested_review_date</code></td><td>string (tanggal)</td><td>Tanggal peninjauan yang diminta, <code>YYYY-MM-DD</code>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="paginasi">
+      <h3>Paginasi <a class="anchor" href="#paginasi">#</a></h3>
+      <p><code>info</code> berisi <code>current_page</code>, <code>per_page</code>, <code>total</code>, dan <code>last_page</code>. Nilai <code>total</code> adalah gabungan SKCK dan izin keramaian. Contoh: 1 SKCK + 1 izin keramaian menghasilkan <code>total: 2</code>.</p>
+    </section>
+
+    <section id="status">
+      <h3>Daftar status <a class="anchor" href="#status">#</a></h3>
+      <p>Rekomendasi label dan warna badge untuk tampilan:</p>
+      <div class="table-responsive">
+        <table class="table table-bordered param-table stack">
+          <thead class="table-light"><tr><th>Layanan</th><th>Nilai</th><th>Label</th><th>Class badge</th></tr></thead>
+          <tbody>
+            <tr><td>SKCK</td><td><code>waiting_payment</code></td><td><span class="badge text-bg-warning">Menunggu Pembayaran</span></td><td><code>text-bg-warning</code></td></tr>
+            <tr><td>SKCK</td><td><code>approved</code></td><td><span class="badge text-bg-success">Disetujui</span></td><td><code>text-bg-success</code></td></tr>
+            <tr><td>SKCK</td><td><code>completed</code></td><td><span class="badge text-bg-primary">Selesai</span></td><td><code>text-bg-primary</code></td></tr>
+            <tr><td>Izin keramaian</td><td><code>schedule_confirmed</code></td><td><span class="badge text-bg-info">Jadwal Dikonfirmasi</span></td><td><code>text-bg-info</code></td></tr>
+            <tr><td>Lainnya</td><td>nilai lain</td><td><span class="badge text-bg-secondary">nilai mentah</span></td><td><code>text-bg-secondary</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small text-body-secondary">SKCK yang dikembalikan hanya berstatus <code>approved</code>, <code>completed</code>, atau <code>waiting_payment</code>. Daftar lengkap status izin keramaian belum didokumentasikan.</p>
+    </section>
+
+    <section id="contoh-kode">
+      <h2>Contoh kode <a class="anchor" href="#contoh-kode">#</a></h2>
+      <ul class="nav nav-tabs code-tabs" role="tablist">
+        <li class="nav-item" role="presentation"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#ex-js" type="button" role="tab">JavaScript</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#ex-php" type="button" role="tab">PHP (Laravel)</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#ex-curl" type="button" role="tab">cURL</button></li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane fade show active" id="ex-js" role="tabpanel"><div class="code-wrap"><pre>async function lookup(nik, services) {
+  const res = await fetch(`${HOST}/api/v1/external/service-applications/lookup`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'App-Id': APP_ID,
+      'Access-Key': ACCESS_KEY,
+    },
+    body: JSON.stringify({ nik, services, page: 1, per_page: 20 }),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const json = await res.json();
+  return json.data; // { user, skck, crowd_permit }
+}</pre></div></div>
+        <div class="tab-pane fade" id="ex-php" role="tabpanel"><div class="code-wrap"><pre>use Illuminate\Support\Facades\Http;
+
+$response = Http::withHeaders([
+        'App-Id'     =&gt; config('services.layanan.app_id'),
+        'Access-Key' =&gt; config('services.layanan.access_key'),
+    ])
+    -&gt;acceptJson()
+    -&gt;post(config('services.layanan.host').'/api/v1/external/service-applications/lookup', [
+        'nik'      =&gt; $nik,
+        'services' =&gt; ['skck', 'crowd_permit'],
+        'page'     =&gt; 1,
+        'per_page' =&gt; 20,
+    ]);
+
+$data = $response-&gt;throw()-&gt;json('data');</pre></div></div>
+        <div class="tab-pane fade" id="ex-curl" role="tabpanel"><div class="code-wrap"><pre>curl -X POST "$HOST/api/v1/external/service-applications/lookup" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -H "App-Id: $APP_ID" \
+  -H "Access-Key: $ACCESS_KEY" \
+  -d '{"nik":"0000000000000001","services":["crowd_permit"]}'</pre></div></div>
+      </div>
+    </section>
+
+    <section id="komponen">
+      <h2>Komponen Bootstrap <a class="anchor" href="#komponen">#</a></h2>
+      <p>Komponen di bawah ini dipakai di <a href="data.html">halaman tampilan data</a>. Semuanya memakai class Bootstrap 5.3 standar, tanpa CSS tambahan.</p>
+
+      <h3>Badge status</h3>
+      <p>Petakan nilai <code>status</code> ke label dan class <code>text-bg-*</code>.</p>
+      <div class="example d-flex flex-wrap gap-2">
+        <span class="badge rounded-pill text-bg-warning">Menunggu Pembayaran</span>
+        <span class="badge rounded-pill text-bg-success">Disetujui</span>
+        <span class="badge rounded-pill text-bg-primary">Selesai</span>
+        <span class="badge rounded-pill text-bg-info">Jadwal Dikonfirmasi</span>
+      </div>
+      <div class="code-wrap"><pre>const STATUS = {
+  waiting_payment:    ['Menunggu Pembayaran', 'text-bg-warning'],
+  approved:           ['Disetujui',           'text-bg-success'],
+  completed:          ['Selesai',             'text-bg-primary'],
+  schedule_confirmed: ['Jadwal Dikonfirmasi', 'text-bg-info'],
+};
+const badge = s =&gt; {
+  const [label, cls] = STATUS[s] || [s, 'text-bg-secondary'];
+  return `&lt;span class="badge rounded-pill ${cls}"&gt;${label}&lt;/span&gt;`;
+};</pre></div>
+
+      <h3>Tabel SKCK</h3>
+      <p>Bungkus dengan <code>.table-responsive</code> supaya bisa digeser di layar kecil. Gunakan <code>.table-hover</code> dan <code>.align-middle</code>.</p>
+      <div class="example">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light"><tr><th>No. Registrasi</th><th>Keperluan</th><th>Klasifikasi</th><th>Status</th><th class="text-end">Dokumen</th></tr></thead>
+            <tbody>
+              <tr><td class="font-monospace small">SKCK-TEST-1</td><td>Pekerjaan</td><td>DALAM NEGERI</td><td><span class="badge rounded-pill text-bg-primary">Selesai</span></td><td class="text-end"><a class="btn btn-sm btn-outline-primary" href="#komponen">Unduh PDF</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="code-wrap"><pre>&lt;div class="table-responsive"&gt;
+  &lt;table class="table table-hover align-middle"&gt;
+    &lt;thead class="table-light"&gt;
+      &lt;tr&gt;
+        &lt;th&gt;No. Registrasi&lt;/th&gt;&lt;th&gt;Keperluan&lt;/th&gt;&lt;th&gt;Klasifikasi&lt;/th&gt;
+        &lt;th&gt;Status&lt;/th&gt;&lt;th class="text-end"&gt;Dokumen&lt;/th&gt;
+      &lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody id="skck-rows"&gt;&lt;/tbody&gt;
+  &lt;/table&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+document.getElementById('skck-rows').innerHTML = data.skck.map(r =&gt; `
+  &lt;tr&gt;
+    &lt;td class="font-monospace small"&gt;${r.registration_number}&lt;/td&gt;
+    &lt;td&gt;${r.purpose}&lt;/td&gt;
+    &lt;td&gt;${r.classification}&lt;/td&gt;
+    &lt;td&gt;${badge(r.status)}&lt;/td&gt;
+    &lt;td class="text-end"&gt;
+      &lt;a class="btn btn-sm btn-outline-primary" href="${HOST + r.application_path}"&gt;Unduh PDF&lt;/a&gt;
+    &lt;/td&gt;
+  &lt;/tr&gt;`).join('');
+&lt;/script&gt;</pre></div>
+
+      <h3>Tab per layanan</h3>
+      <p>Pisahkan SKCK dan izin keramaian dengan <code>.nav-tabs</code>. Tampilkan jumlah data dengan badge di label tab.</p>
+      <div class="example">
+        <ul class="nav nav-tabs">
+          <li class="nav-item"><span class="nav-link active">SKCK <span class="badge text-bg-secondary">1</span></span></li>
+          <li class="nav-item"><span class="nav-link">Izin Keramaian <span class="badge text-bg-secondary">1</span></span></li>
+        </ul>
+      </div>
+      <div class="code-wrap"><pre>&lt;ul class="nav nav-tabs" role="tablist"&gt;
+  &lt;li class="nav-item"&gt;
+    &lt;button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-skck"&gt;
+      SKCK &lt;span class="badge text-bg-secondary"&gt;1&lt;/span&gt;
+    &lt;/button&gt;
+  &lt;/li&gt;
+  &lt;li class="nav-item"&gt;
+    &lt;button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-izin"&gt;
+      Izin Keramaian &lt;span class="badge text-bg-secondary"&gt;1&lt;/span&gt;
+    &lt;/button&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;</pre></div>
+
+      <h3>Kondisi kosong</h3>
+      <p>Jika <code>data.user</code> bernilai <code>null</code> atau array kosong, tampilkan pesan, jangan tabel kosong.</p>
+      <div class="example">
+        <div class="alert alert-light border mb-0">Belum ada pengajuan SKCK untuk NIK ini.</div>
+      </div>
+      <div class="code-wrap"><pre>&lt;div class="alert alert-light border"&gt;Belum ada pengajuan SKCK untuk NIK ini.&lt;/div&gt;</pre></div>
+    </section>
+
+    <section id="catatan">
+      <h2>Catatan &amp; pertanyaan terbuka <a class="anchor" href="#catatan">#</a></h2>
+      <div class="callout callout-warning">
+        <p><strong>Nama variabel token di koleksi Postman tidak konsisten.</strong> Auth koleksi memakai <code>{{Token}}</code>, tetapi setiap request mengirim header <code>Access-Key: {{AccessKey}}</code>. Variabel <code>AccessKey</code> tidak didefinisikan, sehingga header bisa terkirim kosong.</p>
+      </div>
+      <ul>
+        <li><strong>Waktu:</strong> <code>submitted_at</code> dalam UTC, <code>timestamp</code> dalam WIB. Konversi ke WIB sebelum ditampilkan.</li>
+        <li><strong>Tipe ID:</strong> SKCK memakai ULID string, izin keramaian memakai integer.</li>
+        <li><strong>Paginasi gabungan:</strong> belum jelas bagaimana <code>per_page</code> dibagi antara dua array. Perlu dikonfirmasi ke tim backend.</li>
+        <li><strong>Kode error:</strong> format respons untuk 401, 404, dan 422 belum ada di koleksi.</li>
+        <li><strong>URL dokumen:</strong> <code>application_path</code> relatif. Perlu dipastikan base URL dan apakah unduhan butuh autentikasi.</li>
+      </ul>
+    </section>
+
+    <hr class="my-5">
+    <p class="small text-body-secondary">Disusun dari koleksi Postman "External Service Applications - SKCK dan Izin Keramaian". Data pada contoh adalah data uji.</p>
+  </main>
+
+  <nav class="doc-toc" aria-label="Di halaman ini">
+    <strong>Di halaman ini</strong>
+    <a href="#pengantar">Pengantar</a>
+    <a href="#autentikasi">Autentikasi</a>
+    <a href="#endpoint">Endpoint</a>
+    <a href="#respons">Respons</a>
+    <a href="#status">Status</a>
+    <a href="#contoh-kode">Contoh kode</a>
+    <a href="#komponen">Komponen Bootstrap</a>
+    <a href="#catatan">Catatan</a>
+  </nav>
+</div>
+
+<script src="assets/bootstrap.bundle.min.js"></script>
+<script>
+{
+  const sections = [...document.querySelectorAll('.doc-main section[id]')];
+  const links = [...document.querySelectorAll('.doc-sidebar a, .doc-toc a')];
+  const setActive = id => links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + id));
+  const spy = new IntersectionObserver(entries => {
+    const vis = entries.filter(e => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+    if (vis.length) setActive(vis[0].target.id);
+  }, { rootMargin: '-80px 0px -65% 0px' });
+  sections.forEach(s => spy.observe(s));
+}
+</script>
+</body>
+</html>

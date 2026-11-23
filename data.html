@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tampilan Data Pengajuan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="assets/bootstrap.min.css">
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/common.js"></script>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark doc-navbar">
+  <div class="container-fluid px-3 px-lg-4">
+    <a class="navbar-brand d-flex align-items-center" href="index.html"><span class="brand-mark">API</span>Layanan Eksternal</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topnav" aria-controls="topnav" aria-expanded="false" aria-label="Buka navigasi">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="topnav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="index.html">Dokumentasi</a></li>
+        <li class="nav-item"><a class="nav-link active" aria-current="page" href="data.html">Tampilan Data</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="app-wrap">
+  <div class="d-flex flex-wrap align-items-end justify-content-between gap-2 mb-4">
+    <div>
+      <h1 class="h2 fw-bold mb-1">Riwayat Pengajuan Layanan</h1>
+      <p class="text-body-secondary mb-0">Cari pengajuan SKCK dan Izin Keramaian berdasarkan NIK.</p>
+    </div>
+    <span id="mode-badge" class="badge text-bg-warning">Menampilkan data contoh</span>
+  </div>
+
+  <div class="row g-4">
+    <!-- Form pencarian -->
+    <div class="col-lg-4">
+      <form id="lookup-form" class="card shadow-sm" novalidate>
+        <div class="card-header bg-body fw-semibold">Pencarian</div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label for="nik" class="form-label">NIK</label>
+            <input id="nik" class="form-control font-monospace" inputmode="numeric" maxlength="16" placeholder="16 digit NIK" value="0000000000000001" required>
+            <div class="invalid-feedback">NIK harus 16 digit angka.</div>
+          </div>
+          <div class="mb-3">
+            <span class="form-label d-block">Layanan</span>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="svc-skck" value="skck" checked>
+              <label class="form-check-label" for="svc-skck">SKCK</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="svc-ik" value="crowd_permit" checked>
+              <label class="form-check-label" for="svc-ik">Izin Keramaian</label>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="per-page" class="form-label">Data per halaman</label>
+            <select id="per-page" class="form-select">
+              <option value="10">10</option>
+              <option value="20" selected>20</option>
+              <option value="50">50</option>
+            </select>
+          </div>
+
+          <div class="accordion mb-3" id="conn">
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#conn-body" aria-expanded="false" aria-controls="conn-body">Koneksi API</button>
+              </h2>
+              <div id="conn-body" class="accordion-collapse collapse" data-bs-parent="#conn">
+                <div class="accordion-body">
+                  <div class="mb-3">
+                    <label for="host" class="form-label">Host</label>
+                    <input id="host" class="form-control" placeholder="https://api.contoh.go.id" autocomplete="off">
+                  </div>
+                  <div class="mb-3">
+                    <label for="app-id" class="form-label">App-Id</label>
+                    <input id="app-id" class="form-control" autocomplete="off">
+                  </div>
+                  <div class="mb-2">
+                    <label for="access-key" class="form-label">Access-Key</label>
+                    <input id="access-key" type="password" class="form-control" autocomplete="off">
+                  </div>
+                  <p class="small text-body-secondary mb-0">Tidak disimpan. Untuk produksi, panggil API dari backend agar Access-Key tidak terbuka di browser.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary" id="btn-search">
+              <span class="spinner-border spinner-border-sm me-2 d-none" id="spin" aria-hidden="true"></span>Cari ke API
+            </button>
+            <button type="button" class="btn btn-outline-secondary" id="btn-sample">Pakai data contoh</button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Hasil -->
+    <div class="col-lg-8">
+      <div id="alert-box"></div>
+
+      <div class="card shadow-sm mb-4" id="profile-card">
+        <div class="card-body d-flex flex-wrap align-items-center gap-3">
+          <div class="profile-avatar" id="p-avatar">?</div>
+          <div class="me-auto">
+            <div class="fw-semibold fs-5" id="p-name">-</div>
+            <div class="small text-body-secondary">ID pengguna <span id="p-id" class="font-monospace">-</span> &middot; NIK <span id="p-nik" class="font-monospace">-</span></div>
+          </div>
+          <div class="d-flex gap-4 text-center">
+            <div><div class="stat" id="s-skck">0</div><div class="small text-body-secondary">SKCK</div></div>
+            <div><div class="stat" id="s-ik">0</div><div class="small text-body-secondary">Izin Keramaian</div></div>
+            <div><div class="stat" id="s-total">0</div><div class="small text-body-secondary">Total</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-header bg-body pb-0 border-bottom-0">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+            <ul class="nav nav-tabs card-header-tabs mx-0" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="tab-skck-btn" data-bs-toggle="tab" data-bs-target="#tab-skck" type="button" role="tab" aria-controls="tab-skck" aria-selected="true">SKCK <span class="badge text-bg-secondary" id="c-skck">0</span></button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tab-ik-btn" data-bs-toggle="tab" data-bs-target="#tab-ik" type="button" role="tab" aria-controls="tab-ik" aria-selected="false">Izin Keramaian <span class="badge text-bg-secondary" id="c-ik">0</span></button>
+              </li>
+            </ul>
+            <input type="search" id="filter" class="form-control form-control-sm" style="max-width:240px;min-height:38px" placeholder="Saring nomor atau nama..." aria-label="Saring tabel">
+          </div>
+        </div>
+        <div class="tab-content">
+          <div class="tab-pane fade show active" id="tab-skck" role="tabpanel" aria-labelledby="tab-skck-btn">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0 stack">
+                <thead class="table-light">
+                  <tr><th>No. Registrasi</th><th>Diajukan (WIB)</th><th>Keperluan</th><th>Klasifikasi</th><th>Lokasi Cetak</th><th>Status</th><th class="text-end">Aksi</th></tr>
+                </thead>
+                <tbody id="rows-skck"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="tab-ik" role="tabpanel" aria-labelledby="tab-ik-btn">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0 stack">
+                <thead class="table-light">
+                  <tr><th>No. Registrasi</th><th>Diajukan (WIB)</th><th>Nama Kegiatan</th><th>Jenis</th><th>Tgl. Peninjauan</th><th>Status</th><th class="text-end">Aksi</th></tr>
+                </thead>
+                <tbody id="rows-ik"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer bg-body d-flex flex-wrap align-items-center justify-content-between gap-2">
+          <span class="small text-body-secondary" id="page-info">-</span>
+          <nav aria-label="Halaman"><ul class="pagination pagination-sm mb-0" id="pager"></ul></nav>
+        </div>
+      </div>
+      <p class="small text-body-secondary mt-3 mb-0" id="sample-note">Data contoh: nama, nomor registrasi, dan NIK di atas bukan data asli.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Modal detail -->
+<div class="modal fade" id="detail-modal" tabindex="-1" aria-labelledby="detail-title" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title fs-5" id="detail-title">Detail</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+      </div>
+      <div class="modal-body"><dl class="row mb-0" id="detail-body"></dl></div>
+      <div class="modal-footer" id="detail-foot">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/bootstrap.bundle.min.js"></script>
+<script>
+{
+  const SAMPLE = {
+    status: true, code: 200, timestamp: '2026-11-23T10:00:00+07:00',
+    message: { title: 'Pengajuan Layanan', description: 'Lookup pengajuan selesai' },
+    data: {
+      user: { id: 1042, full_name: 'User Uji' },
+      skck: [
+        { id: '01K7QDR1B8NFD6ZF886SNS9D44', registration_number: 'SKCK-TEST-1', status: 'completed', submitted_at: '2026-11-23T02:00:00Z', purpose: 'Pekerjaan', print_location: 'Polres Contoh', classification: 'DALAM NEGERI', application_path: '/skck/tes-final.pdf' },
+        { id: '01K7QE4M2W3XJ8Y0R5T9ZB1C7H', registration_number: 'SKCK-TEST-2', status: 'approved', submitted_at: '2026-10-14T06:35:00Z', purpose: 'Melanjutkan Pendidikan', print_location: 'Polsek Contoh Barat', classification: 'DALAM NEGERI', application_path: '/skck/tes-2.pdf' },
+        { id: '01K7QE9P5D6KQ2N8V4F1HS3M0A', registration_number: 'SKCK-TEST-3', status: 'waiting_payment', submitted_at: '2026-09-02T03:10:00Z', purpose: 'Visa / Keluar Negeri', print_location: 'Polda Contoh', classification: 'LUAR NEGERI', application_path: '' }
+      ],
+      crowd_permit: [
+        { id: 73, registration_number: 'IK-TEST-1', status: 'schedule_confirmed', submitted_at: '2026-11-23T01:00:00Z', activity_name: 'Pertemuan warga', activity_type_name: 'Pertemuan', requested_review_date: '2026-11-26' },
+        { id: 58, registration_number: 'IK-TEST-2', status: 'schedule_confirmed', submitted_at: '2026-08-11T09:20:00Z', activity_name: 'Jalan sehat RW 05', activity_type_name: 'Olahraga', requested_review_date: '2026-08-15' }
+      ]
+    },
+    info: { current_page: 1, per_page: 20, total: 5, last_page: 1 }
+  };
+
+  const STATUS = {
+    waiting_payment: ['Menunggu Pembayaran', 'text-bg-warning'],
+    approved: ['Disetujui', 'text-bg-success'],
+    completed: ['Selesai', 'text-bg-primary'],
+    schedule_confirmed: ['Jadwal Dikonfirmasi', 'text-bg-info']
+  };
+
+  const $ = id => document.getElementById(id);
+  const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const badge = s => { const [l, c] = STATUS[s] || [s || '-', 'text-bg-secondary']; return `<span class="badge rounded-pill ${c}">${esc(l)}</span>`; };
+  const fmtDT = iso => { if (!iso) return '-'; const d = new Date(iso); return isNaN(d) ? esc(iso) : d.toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }); };
+  const fmtD = s => { if (!s) return '-'; const d = new Date(s + 'T00:00:00+07:00'); return isNaN(d) ? esc(s) : d.toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', day: '2-digit', month: 'short', year: 'numeric' }); };
+  const docUrl = p => { if (!p) return ''; const h = $('host').value.trim().replace(/\/+$/, ''); return /^https?:/i.test(p) ? p : (h ? h + p : ''); };
+
+  let state = { json: null, sample: true, page: 1 };
+
+  const empty = (cols, text) => `<tr><td colspan="${cols}" class="p-0"><div class="alert alert-light border m-3">${text}</div></td></tr>`;
+
+  function renderRows() {
+    const json = state.json; if (!json) return;
+    const q = $('filter').value.trim().toLowerCase();
+    const match = r => !q || Object.values(r).some(v => String(v ?? '').toLowerCase().includes(q));
+    const skck = (json.data.skck || []).filter(match);
+    const ik = (json.data.crowd_permit || []).filter(match);
+
+    $('rows-skck').innerHTML = skck.length ? skck.map((r, i) => `
+      <tr>
+        <td class="font-monospace small nowrap">${esc(r.registration_number)}</td>
+        <td class="nowrap">${fmtDT(r.submitted_at)}</td>
+        <td>${esc(r.purpose)}</td>
+        <td><span class="badge text-bg-light border">${esc(r.classification)}</span></td>
+        <td>${esc(r.print_location)}</td>
+        <td>${badge(r.status)}</td>
+        <td class="text-end nowrap"><button type="button" class="btn btn-sm btn-outline-primary" data-type="skck" data-id="${esc(r.id)}">Detail</button></td>
+      </tr>`).join('') : empty(7, q ? 'Tidak ada SKCK yang cocok dengan saringan.' : 'Belum ada pengajuan SKCK untuk NIK ini.');
+
+    $('rows-ik').innerHTML = ik.length ? ik.map(r => `
+      <tr>
+        <td class="font-monospace small nowrap">${esc(r.registration_number)}</td>
+        <td class="nowrap">${fmtDT(r.submitted_at)}</td>
+        <td>${esc(r.activity_name)}</td>
+        <td>${esc(r.activity_type_name)}</td>
+        <td class="nowrap">${fmtD(r.requested_review_date)}</td>
+        <td>${badge(r.status)}</td>
+        <td class="text-end nowrap"><button type="button" class="btn btn-sm btn-outline-primary" data-type="ik" data-id="${esc(r.id)}">Detail</button></td>
+      </tr>`).join('') : empty(7, q ? 'Tidak ada izin keramaian yang cocok dengan saringan.' : 'Belum ada pengajuan izin keramaian untuk NIK ini.');
+  }
+
+  function render(json, nik) {
+    state.json = json;
+    const d = json.data || {}; const u = d.user;
+    $('p-name').textContent = u ? u.full_name : 'Pengguna tidak ditemukan';
+    $('p-id').textContent = u ? u.id : '-';
+    $('p-nik').textContent = nik;
+    $('p-avatar').textContent = u ? u.full_name.split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase() : '?';
+    const ns = (d.skck || []).length, ni = (d.crowd_permit || []).length;
+    $('s-skck').textContent = $('c-skck').textContent = ns;
+    $('s-ik').textContent = $('c-ik').textContent = ni;
+    const info = json.info || {};
+    $('s-total').textContent = info.total ?? ns + ni;
+    $('page-info').textContent = `Halaman ${info.current_page ?? 1} dari ${info.last_page ?? 1} · ${info.total ?? ns + ni} data`;
+    renderPager(info);
+    $('mode-badge').className = 'badge ' + (state.sample ? 'text-bg-warning' : 'text-bg-success');
+    $('mode-badge').textContent = state.sample ? 'Menampilkan data contoh' : 'Data dari API';
+    $('sample-note').classList.toggle('d-none', !state.sample);
+    renderRows();
+  }
+
+  function renderPager(info) {
+    const cur = info.current_page || 1, last = info.last_page || 1;
+    const item = (p, label, dis, act) => `<li class="page-item${dis ? ' disabled' : ''}${act ? ' active' : ''}"><button type="button" class="page-link" data-page="${p}"${dis ? ' tabindex="-1"' : ''}>${label}</button></li>`;
+    let html = item(cur - 1, '&laquo;', cur <= 1, false);
+    const from = Math.max(1, cur - 2), to = Math.min(last, cur + 2);
+    for (let p = from; p <= to; p++) html += item(p, p, false, p === cur);
+    html += item(cur + 1, '&raquo;', cur >= last, false);
+    $('pager').innerHTML = html;
+  }
+
+  function showAlert(kind, html) {
+    $('alert-box').innerHTML = html ? `<div class="alert alert-${kind} alert-dismissible fade show" role="alert">${html}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button></div>` : '';
+  }
+
+  function selectedServices() {
+    return ['svc-skck', 'svc-ik'].map(id => $(id)).filter(c => c.checked).map(c => c.value);
+  }
+
+  function nikValid() {
+    const ok = /^\d{16}$/.test($('nik').value.trim());
+    $('nik').classList.toggle('is-invalid', !ok);
+    return ok;
+  }
+
+  function useSample() {
+    const svc = selectedServices();
+    const json = JSON.parse(JSON.stringify(SAMPLE));
+    if (!svc.includes('skck')) json.data.skck = [];
+    if (!svc.includes('crowd_permit')) json.data.crowd_permit = [];
+    json.info.total = json.data.skck.length + json.data.crowd_permit.length;
+    json.info.per_page = +$('per-page').value;
+    state.sample = true;
+    showAlert('', '');
+    render(json, $('nik').value.trim() || '-');
+  }
+
+  async function search(page) {
+    if (!nikValid()) return;
+    const svc = selectedServices();
+    if (!svc.length) { showAlert('warning', 'Pilih minimal satu layanan.'); return; }
+    const host = $('host').value.trim().replace(/\/+$/, '');
+    if (!host || !$('app-id').value.trim() || !$('access-key').value) {
+      new bootstrap.Collapse($('conn-body'), { toggle: false }).show();
+      showAlert('warning', 'Isi Host, App-Id, dan Access-Key di bagian <strong>Koneksi API</strong>.');
+      return;
+    }
+    $('spin').classList.remove('d-none'); $('btn-search').disabled = true;
+    try {
+      const body = { nik: $('nik').value.trim(), page, per_page: +$('per-page').value };
+      if (svc.length === 1) body.services = svc;
+      const res = await fetch(host + '/api/v1/external/service-applications/lookup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'App-Id': $('app-id').value.trim(), 'Access-Key': $('access-key').value },
+        body: JSON.stringify(body)
+      });
+      const json = await res.json().catch(() => null);
+      if (!res.ok || !json || !json.data) {
+        const msg = json && json.message ? (json.message.description || json.message.title || '') : '';
+        showAlert('danger', `<strong>Gagal (HTTP ${res.status}).</strong> ${esc(msg)}`);
+        return;
+      }
+      state.sample = false; state.page = page;
+      showAlert('', '');
+      render(json, body.nik);
+    } catch (e) {
+      showAlert('danger', '<strong>Tidak bisa menghubungi API.</strong> Periksa host dan pengaturan CORS server. Jika halaman ini dibuka dari pratinjau Claude, panggilan ke host lain memang diblokir. Jalankan file ini dari server Anda sendiri.');
+    } finally {
+      $('spin').classList.add('d-none'); $('btn-search').disabled = false;
+    }
+  }
+
+  function openDetail(type, id) {
+    const list = type === 'skck' ? state.json.data.skck : state.json.data.crowd_permit;
+    const r = list.find(x => String(x.id) === id); if (!r) return;
+    const rows = type === 'skck'
+      ? [['No. Registrasi', esc(r.registration_number)], ['ID', `<span class="font-monospace small">${esc(r.id)}</span>`], ['Status', badge(r.status)], ['Diajukan', fmtDT(r.submitted_at) + ' WIB'], ['Keperluan', esc(r.purpose)], ['Klasifikasi', esc(r.classification)], ['Lokasi Cetak', esc(r.print_location)], ['Path Dokumen', r.application_path ? `<code>${esc(r.application_path)}</code>` : '-']]
+      : [['No. Registrasi', esc(r.registration_number)], ['ID', esc(r.id)], ['Status', badge(r.status)], ['Diajukan', fmtDT(r.submitted_at) + ' WIB'], ['Nama Kegiatan', esc(r.activity_name)], ['Jenis Kegiatan', esc(r.activity_type_name)], ['Tgl. Peninjauan', fmtD(r.requested_review_date)]];
+    $('detail-title').textContent = (type === 'skck' ? 'Detail SKCK ' : 'Detail Izin Keramaian ') + r.registration_number;
+    $('detail-body').innerHTML = rows.map(([k, v]) => `<dt class="col-sm-4 text-body-secondary fw-normal">${k}</dt><dd class="col-sm-8">${v}</dd>`).join('');
+    const url = type === 'skck' ? docUrl(r.application_path) : '';
+    $('detail-foot').innerHTML = (url ? `<a class="btn btn-primary" href="${esc(url)}" target="_blank" rel="noopener">Buka PDF</a>` : '') + '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>';
+    bootstrap.Modal.getOrCreateInstance($('detail-modal')).show();
+  }
+
+  $('lookup-form').addEventListener('submit', e => { e.preventDefault(); search(1); });
+  $('btn-sample').addEventListener('click', () => { if (nikValid()) useSample(); });
+  $('nik').addEventListener('input', () => { $('nik').value = $('nik').value.replace(/\D/g, ''); if ($('nik').classList.contains('is-invalid')) nikValid(); });
+  $('filter').addEventListener('input', renderRows);
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-type][data-id]'); if (b) { openDetail(b.dataset.type, b.dataset.id); return; }
+    const p = e.target.closest('#pager [data-page]');
+    if (p && !p.parentElement.classList.contains('disabled') && !p.parentElement.classList.contains('active')) {
+      if (state.sample) return; search(+p.dataset.page);
+    }
+  });
+
+  useSample();
+}
+</script>
+</body>
+</html>
