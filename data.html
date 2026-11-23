@@ -67,6 +67,11 @@
             </select>
           </div>
 
+          <div class="alert alert-success small py-2 mb-3 d-none" id="conn-status">
+            Terhubung ke <span class="font-monospace" id="conn-host"></span><br>
+            <span class="text-body-secondary">Koneksi diatur lewat ENV di server. Pastikan GlobalProtect aktif.</span>
+          </div>
+
           <div class="accordion mb-3" id="conn">
             <div class="accordion-item">
               <h2 class="accordion-header">
@@ -183,6 +188,8 @@
   </div>
 </div>
 
+<!-- Dibuat otomatis oleh install-docs.sh dari file ENV di server; tidak ada di repo. -->
+<script src="assets/config.js"></script>
 <script src="assets/bootstrap.bundle.min.js"></script>
 <script>
 {
@@ -367,6 +374,19 @@
       if (state.sample) return; search(+p.dataset.page);
     }
   });
+
+  // Konfigurasi dari ENV (assets/config.js). Kalau lengkap, form koneksi disembunyikan.
+  const CFG = window.APP_CONFIG || {};
+  if (CFG.apiHost && CFG.appId && CFG.accessKey) {
+    $('host').value = CFG.apiHost;
+    $('app-id').value = CFG.appId;
+    $('access-key').value = CFG.accessKey;
+    $('conn').classList.add('d-none');
+    $('conn-host').textContent = CFG.apiHost;
+    $('conn-status').classList.remove('d-none');
+  } else if (CFG.apiHost) {
+    $('host').value = CFG.apiHost;
+  }
 
   useSample();
 }

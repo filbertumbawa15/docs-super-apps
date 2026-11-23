@@ -1,0 +1,4 @@
+# Konfigurasi rahasia, dibuat di server dari ENV
+.env
+*.env
+assets/config.js
