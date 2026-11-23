@@ -5,7 +5,7 @@ Dokumentasi API lookup pengajuan SKCK dan Izin Keramaian, bergaya Bootstrap Docs
 - `index.html` — dokumentasi endpoint `POST /api/v1/external/service-applications/lookup`
 - `data.html` — halaman untuk menampilkan data dari endpoint (tabel, badge status, detail, paginasi)
 - `assets/` — Bootstrap 5.3.3, CSS dan JS halaman
-- `deploy/install-docs.sh` — script instalasi ke VPS (Nginx, port 5173)
+- `deploy/install-docs.sh` — script instalasi ke VPS (Nginx, 127.0.0.1:5173 + SSH tunnel)
 
 ## Jalankan di localhost (disarankan, tanpa masalah CORS)
 
@@ -36,6 +36,15 @@ sudo bash install-docs.sh
 Saat pertama kali dijalankan, script menanyakan Host API, App-Id, Access-Key, dan login halaman,
 lalu menyimpannya di `/etc/docs-super-apps/docs.env` (hanya bisa dibaca root). Dari ENV itu script
 membuat `assets/config.js`, sehingga `data.html` langsung terhubung tanpa mengisi form.
+
+Secara default situs hanya terbuka di `127.0.0.1:5173` di VPS. Buka dari laptop lewat SSH tunnel:
+
+```bash
+ssh -N -L 5173:127.0.0.1:5173 ubuntu@IP-VPS
+# lalu buka http://localhost:5173/data.html
+```
+
+Origin di browser menjadi `http://localhost:5173`. Untuk membuka ke publik: `sudo BIND=0.0.0.0 bash install-docs.sh`.
 
 - Perbarui setelah ada push baru: `sudo bash install-docs.sh`
 - Ganti host, key, atau login: `sudo bash install-docs.sh --reconfig`

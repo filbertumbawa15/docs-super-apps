@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Instalasi / pembaruan situs dokumentasi docs-super-apps di VPS (Ubuntu/Debian).
-# Menyajikan file statis lewat Nginx di port khusus (default 5173).
+# Menyajikan file statis lewat Nginx di 127.0.0.1:5173 (akses dari laptop lewat SSH tunnel).
 #
 # Konfigurasi API (host, App-Id, Access-Key) dibaca dari file ENV di server:
 #   /etc/docs-super-apps/docs.env   (pemilik root, mode 600)
@@ -10,6 +10,7 @@
 # Pemakaian:
 #   sudo bash install-docs.sh              # instal atau perbarui
 #   sudo bash install-docs.sh --reconfig   # isi ulang file ENV
+#   sudo BIND=0.0.0.0 bash install-docs.sh     # buka ke publik (default: hanya localhost, akses lewat SSH tunnel)
 #
 # Aman dijalankan ulang.
 
@@ -19,6 +20,7 @@ REPO_URL="${REPO_URL:-https://github.com/filbertumbawa15/docs-super-apps.git}"
 BRANCH="${BRANCH:-main}"
 APP_DIR="${APP_DIR:-/var/www/docs-super-apps}"
 PORT="${PORT:-5173}"
+BIND="${BIND:-127.0.0.1}"   # 127.0.0.1 = hanya localhost (default); 0.0.0.0 = publik
 SITE_NAME="docs-super-apps"
 ENV_DIR="/etc/${SITE_NAME}"
 ENV_FILE="${ENV_DIR}/docs.env"
@@ -36,6 +38,7 @@ fail()  { printf '\033[1;31m[GAGAL]\033[0m %s\n' "$*" >&2; exit 1; }
 [[ $EUID -eq 0 ]] || fail "Jalankan dengan sudo: sudo bash $0"
 command -v apt-get >/dev/null 2>&1 || fail "Script ini untuk Ubuntu/Debian (butuh apt-get)."
 [[ "$PORT" =~ ^[0-9]+$ ]] && (( PORT >= 1 && PORT <= 65535 )) || fail "PORT tidak valid: $PORT"
+[[ "$BIND" == "127.0.0.1" || "$BIND" == "0.0.0.0" ]] || fail "BIND hanya boleh 127.0.0.1 atau 0.0.0.0"
 
 # --- 2. Paket ------------------------------------------------------------------
 NEED=()
@@ -156,11 +159,16 @@ if [[ -n "$BASIC_AUTH_USER" && -f "$HTPASSWD" ]]; then
 fi
 
 info "Menulis konfigurasi Nginx: $NGINX_CONF"
+if [[ "$BIND" == "127.0.0.1" ]]; then
+  LISTEN_BLOCK="    listen 127.0.0.1:${PORT};"
+else
+  LISTEN_BLOCK="    listen ${PORT};
+    listen [::]:${PORT};"
+fi
 cat >"$NGINX_CONF" <<EOF
 # Dikelola oleh install-docs.sh; perubahan manual akan tertimpa saat script dijalankan ulang.
 server {
-    listen ${PORT};
-    listen [::]:${PORT};
+${LISTEN_BLOCK}
     server_name _;
 
     root ${APP_DIR};
@@ -204,7 +212,9 @@ systemctl reload nginx
 ok "Nginx dimuat ulang"
 
 # --- 8. Firewall ---------------------------------------------------------------
-if command -v ufw >/dev/null 2>&1 && ufw status | grep -q "Status: active"; then
+if [[ "$BIND" == "127.0.0.1" ]]; then
+  ok "Hanya localhost: port ${PORT} tidak dibuka ke internet"
+elif command -v ufw >/dev/null 2>&1 && ufw status | grep -q "Status: active"; then
   ufw allow "${PORT}/tcp" >/dev/null
   ok "UFW: port ${PORT}/tcp dibuka"
 else
@@ -229,10 +239,17 @@ C_GIT="$(code /.git/config)"
 
 PUBLIC_IP="$(curl -s --max-time 5 https://api.ipify.org || hostname -I | awk '{print $1}')"
 echo
-ok "Selesai. Buka:"
-echo "    Dokumentasi  : http://${PUBLIC_IP}:${PORT}/"
-echo "    Tampilan data: http://${PUBLIC_IP}:${PORT}/data.html"
-echo
-warn "Kalau tidak bisa dibuka dari luar, buka port ${PORT}/tcp di security group / firewall penyedia VPS."
+if [[ "$BIND" == "127.0.0.1" ]]; then
+  ok "Selesai. Situs hanya terbuka di localhost VPS. Dari laptop, jalankan:"
+  echo "    ssh -N -L ${PORT}:127.0.0.1:${PORT} ${SUDO_USER:-ubuntu}@${PUBLIC_IP}"
+  echo "lalu buka di browser laptop:"
+  echo "    http://localhost:${PORT}/data.html"
+else
+  ok "Selesai. Buka:"
+  echo "    Dokumentasi  : http://${PUBLIC_IP}:${PORT}/"
+  echo "    Tampilan data: http://${PUBLIC_IP}:${PORT}/data.html"
+  echo
+  warn "Kalau tidak bisa dibuka dari luar, buka port ${PORT}/tcp di security group / firewall penyedia VPS."
+fi
 echo "Perbarui setelah ada push baru : sudo bash $0"
 echo "Ganti host / key / login       : sudo bash $0 --reconfig"
