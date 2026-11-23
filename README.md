@@ -51,6 +51,11 @@ Origin di browser menjadi `http://localhost:5173`. Untuk membuka ke publik: `sud
 
 Lihat `.env.example` untuk format ENV.
 
+## Logo
+
+Taruh file logo resmi di `assets/logo-polri.png` (disarankan PNG transparan, tinggi minimal 72 px), lalu commit.
+Jika file tidak ada, navbar menampilkan tanda teks "SKCK".
+
 ## Catatan
 
 - API hanya bisa diakses lewat **GlobalProtect**. Browser pengguna harus tersambung VPN saat menekan "Cari ke API".

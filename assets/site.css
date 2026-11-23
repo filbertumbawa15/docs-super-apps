@@ -18,7 +18,9 @@ code{overflow-wrap:anywhere;font-size:.875em}
 .doc-navbar .navbar-brand{font-weight:700;letter-spacing:-.01em}
 .doc-navbar .nav-link{color:rgba(255,255,255,.8)}
 .doc-navbar .nav-link.active,.doc-navbar .nav-link:hover{color:#fff}
-.brand-mark{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:8px;background:#fff;color:var(--brand);font-weight:800;font-size:14px;margin-right:8px}
+.brand-logo{height:36px;width:auto;margin-right:10px;flex:none}
+.brand-mark[hidden]{display:none}
+.brand-mark{display:inline-grid;place-items:center;min-width:30px;height:30px;padding:0 6px;border-radius:8px;background:#fff;color:var(--brand);font-weight:800;font-size:12px;margin-right:8px}
 [data-bs-theme=dark] .brand-mark{color:#0b2a5e}
 
 .doc-layout{display:grid;grid-template-columns:var(--sidebar-w) minmax(0,1fr) var(--toc-w);gap:2rem;max-width:1400px;margin:0 auto;padding:0 1.5rem}

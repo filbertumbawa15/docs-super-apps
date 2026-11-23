@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Docs API Lookup Layanan</title>
+<title>Dokumentasi SKCK</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
 <link rel="stylesheet" href="assets/bootstrap.min.css">
@@ -14,7 +14,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark doc-navbar">
   <div class="container-fluid px-3 px-lg-4">
-    <a class="navbar-brand d-flex align-items-center" href="#pengantar"><span class="brand-mark">API</span>Layanan Eksternal</a>
+    <a class="navbar-brand d-flex align-items-center" href="#pengantar"><img class="brand-logo" src="assets/logo-polri.png" alt="Logo Polri" onerror="this.remove();document.querySelectorAll('.brand-mark').forEach(e=>e.hidden=false)"><span class="brand-mark" hidden>SKCK</span>Dokumentasi SKCK</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topnav" aria-controls="topnav" aria-expanded="false" aria-label="Buka navigasi">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -24,7 +24,6 @@
         <li class="nav-item"><a class="nav-link" href="data.html">Tampilan Data</a></li>
         <li class="nav-item d-lg-none"><a class="nav-link" href="#endpoint">Endpoint</a></li>
         <li class="nav-item d-lg-none"><a class="nav-link" href="#respons">Respons</a></li>
-        <li class="nav-item d-lg-none"><a class="nav-link" href="#komponen">Komponen Bootstrap</a></li>
       </ul>
     </div>
   </div>
@@ -46,8 +45,6 @@
     <a href="#status">Daftar status</a>
     <div class="group">Panduan</div>
     <a href="#contoh-kode">Contoh kode</a>
-    <a href="#komponen">Komponen Bootstrap</a>
-    <a href="#catatan">Catatan &amp; pertanyaan</a>
     <a href="data.html">Halaman tampilan data &rarr;</a>
   </aside>
 
@@ -303,108 +300,7 @@ $data = $response-&gt;throw()-&gt;json('data');</pre></div></div>
       </div>
     </section>
 
-    <section id="komponen">
-      <h2>Komponen Bootstrap <a class="anchor" href="#komponen">#</a></h2>
-      <p>Komponen di bawah ini dipakai di <a href="data.html">halaman tampilan data</a>. Semuanya memakai class Bootstrap 5.3 standar, tanpa CSS tambahan.</p>
 
-      <h3>Badge status</h3>
-      <p>Petakan nilai <code>status</code> ke label dan class <code>text-bg-*</code>.</p>
-      <div class="example d-flex flex-wrap gap-2">
-        <span class="badge rounded-pill text-bg-warning">Menunggu Pembayaran</span>
-        <span class="badge rounded-pill text-bg-success">Disetujui</span>
-        <span class="badge rounded-pill text-bg-primary">Selesai</span>
-        <span class="badge rounded-pill text-bg-info">Jadwal Dikonfirmasi</span>
-      </div>
-      <div class="code-wrap"><pre>const STATUS = {
-  waiting_payment:    ['Menunggu Pembayaran', 'text-bg-warning'],
-  approved:           ['Disetujui',           'text-bg-success'],
-  completed:          ['Selesai',             'text-bg-primary'],
-  schedule_confirmed: ['Jadwal Dikonfirmasi', 'text-bg-info'],
-};
-const badge = s =&gt; {
-  const [label, cls] = STATUS[s] || [s, 'text-bg-secondary'];
-  return `&lt;span class="badge rounded-pill ${cls}"&gt;${label}&lt;/span&gt;`;
-};</pre></div>
-
-      <h3>Tabel SKCK</h3>
-      <p>Bungkus dengan <code>.table-responsive</code> supaya bisa digeser di layar kecil. Gunakan <code>.table-hover</code> dan <code>.align-middle</code>.</p>
-      <div class="example">
-        <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0">
-            <thead class="table-light"><tr><th>No. Registrasi</th><th>Keperluan</th><th>Klasifikasi</th><th>Status</th><th class="text-end">Dokumen</th></tr></thead>
-            <tbody>
-              <tr><td class="font-monospace small">SKCK-TEST-1</td><td>Pekerjaan</td><td>DALAM NEGERI</td><td><span class="badge rounded-pill text-bg-primary">Selesai</span></td><td class="text-end"><a class="btn btn-sm btn-outline-primary" href="#komponen">Unduh PDF</a></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div class="code-wrap"><pre>&lt;div class="table-responsive"&gt;
-  &lt;table class="table table-hover align-middle"&gt;
-    &lt;thead class="table-light"&gt;
-      &lt;tr&gt;
-        &lt;th&gt;No. Registrasi&lt;/th&gt;&lt;th&gt;Keperluan&lt;/th&gt;&lt;th&gt;Klasifikasi&lt;/th&gt;
-        &lt;th&gt;Status&lt;/th&gt;&lt;th class="text-end"&gt;Dokumen&lt;/th&gt;
-      &lt;/tr&gt;
-    &lt;/thead&gt;
-    &lt;tbody id="skck-rows"&gt;&lt;/tbody&gt;
-  &lt;/table&gt;
-&lt;/div&gt;
-
-&lt;script&gt;
-document.getElementById('skck-rows').innerHTML = data.skck.map(r =&gt; `
-  &lt;tr&gt;
-    &lt;td class="font-monospace small"&gt;${r.registration_number}&lt;/td&gt;
-    &lt;td&gt;${r.purpose}&lt;/td&gt;
-    &lt;td&gt;${r.classification}&lt;/td&gt;
-    &lt;td&gt;${badge(r.status)}&lt;/td&gt;
-    &lt;td class="text-end"&gt;
-      &lt;a class="btn btn-sm btn-outline-primary" href="${HOST + r.application_path}"&gt;Unduh PDF&lt;/a&gt;
-    &lt;/td&gt;
-  &lt;/tr&gt;`).join('');
-&lt;/script&gt;</pre></div>
-
-      <h3>Tab per layanan</h3>
-      <p>Pisahkan SKCK dan izin keramaian dengan <code>.nav-tabs</code>. Tampilkan jumlah data dengan badge di label tab.</p>
-      <div class="example">
-        <ul class="nav nav-tabs">
-          <li class="nav-item"><span class="nav-link active">SKCK <span class="badge text-bg-secondary">1</span></span></li>
-          <li class="nav-item"><span class="nav-link">Izin Keramaian <span class="badge text-bg-secondary">1</span></span></li>
-        </ul>
-      </div>
-      <div class="code-wrap"><pre>&lt;ul class="nav nav-tabs" role="tablist"&gt;
-  &lt;li class="nav-item"&gt;
-    &lt;button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-skck"&gt;
-      SKCK &lt;span class="badge text-bg-secondary"&gt;1&lt;/span&gt;
-    &lt;/button&gt;
-  &lt;/li&gt;
-  &lt;li class="nav-item"&gt;
-    &lt;button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-izin"&gt;
-      Izin Keramaian &lt;span class="badge text-bg-secondary"&gt;1&lt;/span&gt;
-    &lt;/button&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;</pre></div>
-
-      <h3>Kondisi kosong</h3>
-      <p>Jika <code>data.user</code> bernilai <code>null</code> atau array kosong, tampilkan pesan, jangan tabel kosong.</p>
-      <div class="example">
-        <div class="alert alert-light border mb-0">Belum ada pengajuan SKCK untuk NIK ini.</div>
-      </div>
-      <div class="code-wrap"><pre>&lt;div class="alert alert-light border"&gt;Belum ada pengajuan SKCK untuk NIK ini.&lt;/div&gt;</pre></div>
-    </section>
-
-    <section id="catatan">
-      <h2>Catatan &amp; pertanyaan terbuka <a class="anchor" href="#catatan">#</a></h2>
-      <div class="callout callout-warning">
-        <p><strong>Nama variabel token di koleksi Postman tidak konsisten.</strong> Auth koleksi memakai <code>{{Token}}</code>, tetapi setiap request mengirim header <code>Access-Key: {{AccessKey}}</code>. Variabel <code>AccessKey</code> tidak didefinisikan, sehingga header bisa terkirim kosong.</p>
-      </div>
-      <ul>
-        <li><strong>Waktu:</strong> <code>submitted_at</code> dalam UTC, <code>timestamp</code> dalam WIB. Konversi ke WIB sebelum ditampilkan.</li>
-        <li><strong>Tipe ID:</strong> SKCK memakai ULID string, izin keramaian memakai integer.</li>
-        <li><strong>Paginasi gabungan:</strong> belum jelas bagaimana <code>per_page</code> dibagi antara dua array. Perlu dikonfirmasi ke tim backend.</li>
-        <li><strong>Kode error:</strong> format respons untuk 401, 404, dan 422 belum ada di koleksi.</li>
-        <li><strong>URL dokumen:</strong> <code>application_path</code> relatif. Perlu dipastikan base URL dan apakah unduhan butuh autentikasi.</li>
-      </ul>
-    </section>
 
     <hr class="my-5">
     <p class="small text-body-secondary">Disusun dari koleksi Postman "External Service Applications - SKCK dan Izin Keramaian". Data pada contoh adalah data uji.</p>
@@ -418,8 +314,6 @@ document.getElementById('skck-rows').innerHTML = data.skck.map(r =&gt; `
     <a href="#respons">Respons</a>
     <a href="#status">Status</a>
     <a href="#contoh-kode">Contoh kode</a>
-    <a href="#komponen">Komponen Bootstrap</a>
-    <a href="#catatan">Catatan</a>
   </nav>
 </div>
 
