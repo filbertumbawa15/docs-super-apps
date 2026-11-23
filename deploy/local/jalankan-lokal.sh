@@ -71,8 +71,8 @@ URL="http://localhost:$PORT/data.html"
 (
   for _ in $(seq 1 20); do
     if curl -s -o /dev/null "http://127.0.0.1:$PORT/" 2>/dev/null; then
-      if command -v open >/dev/null 2>&1; then open "$URL"
-      elif command -v xdg-open >/dev/null 2>&1; then xdg-open "$URL" >/dev/null 2>&1
+      if [[ "$(uname)" == "Darwin" ]]; then open "$URL" >/dev/null 2>&1 || true
+      elif command -v xdg-open >/dev/null 2>&1; then xdg-open "$URL" >/dev/null 2>&1 || true
       fi
       exit 0
     fi
