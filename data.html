@@ -328,7 +328,8 @@
     const svc = selectedServices();
     if (!svc.length) { showAlert('warning', 'Pilih minimal satu layanan.'); return; }
     const host = $('host').value.trim().replace(/\/+$/, '');
-    if (!host || !$('app-id').value.trim() || !$('access-key').value) {
+    const viaProxy = !!CFG.proxy;
+    if (!host || (!viaProxy && (!$('app-id').value.trim() || !$('access-key').value))) {
       new bootstrap.Collapse($('conn-body'), { toggle: false }).show();
       showAlert('warning', 'Isi Host, App-Id, dan Access-Key di bagian <strong>Koneksi API</strong>.');
       return;
@@ -339,7 +340,9 @@
       if (svc.length === 1) body.services = svc;
       const res = await fetch(host + '/api/v1/external/service-applications/lookup', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'App-Id': $('app-id').value.trim(), 'Access-Key': $('access-key').value },
+        headers: viaProxy
+          ? { 'Content-Type': 'application/json', 'Accept': 'application/json' }
+          : { 'Content-Type': 'application/json', 'Accept': 'application/json', 'App-Id': $('app-id').value.trim(), 'Access-Key': $('access-key').value },
         body: JSON.stringify(body)
       });
       const json = await res.json().catch(() => null);
@@ -387,15 +390,19 @@
 
   // Konfigurasi dari ENV (assets/config.js). Kalau lengkap, form koneksi disembunyikan.
   const CFG = window.APP_CONFIG || {};
-  if (CFG.apiHost && CFG.appId && CFG.accessKey) {
+  if (CFG.apiHost && (CFG.proxy || (CFG.appId && CFG.accessKey))) {
     $('host').value = CFG.apiHost;
-    $('app-id').value = CFG.appId;
-    $('access-key').value = CFG.accessKey;
+    $('app-id').value = CFG.appId || '';
+    $('access-key').value = CFG.accessKey || '';
     $('conn').classList.add('d-none');
     $('conn-status').classList.remove('d-none');
-    // Cek apakah host API terjangkau (mis. GlobalProtect aktif). Tanpa kredensial, tanpa data.
-    fetch(CFG.apiHost.replace(/\/+$/, '') + '/', { mode: 'no-cors', cache: 'no-store' })
-      .then(() => setConn('ok'), () => setConn('fail'));
+    // Cek apakah API terjangkau (mis. GlobalProtect aktif). Tanpa kredensial, tanpa data.
+    if (CFG.healthUrl) {
+      fetch(CFG.healthUrl, { cache: 'no-store' }).then(r => r.json()).then(j => setConn(j.ok ? 'ok' : 'fail'), () => setConn('fail'));
+    } else {
+      fetch(CFG.apiHost.replace(/\/+$/, '') + '/', { mode: 'no-cors', cache: 'no-store' })
+        .then(() => setConn('ok'), () => setConn('fail'));
+    }
   } else if (CFG.apiHost) {
     $('host').value = CFG.apiHost;
   }

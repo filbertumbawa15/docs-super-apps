@@ -7,6 +7,25 @@ Dokumentasi API lookup pengajuan SKCK dan Izin Keramaian, bergaya Bootstrap Docs
 - `assets/` — Bootstrap 5.3.3, CSS dan JS halaman
 - `deploy/install-docs.sh` — script instalasi ke VPS (Nginx, port 8075)
 
+## Jalankan di localhost (disarankan, tanpa masalah CORS)
+
+Butuh Node.js 18+ dan GlobalProtect aktif di laptop. Server lokal menyajikan docs dan
+meneruskan pencarian ke API, sehingga browser tidak terkena CORS dan Access-Key tidak dikirim ke browser.
+
+```bash
+git clone https://github.com/filbertumbawa15/docs-super-apps.git
+cd docs-super-apps
+
+# macOS / Linux
+bash deploy/local/start-local.sh          # pertama kali: mengisi .env
+bash deploy/local/start-local.sh --reconfig   # ganti host / key / port
+
+# Windows: klik dua kali deploy\local\start-local.bat
+```
+
+Buka http://localhost:5173/data.html. Konfigurasi ada di file `.env` di root repo
+(format: `deploy/local/.env.example`).
+
 ## Instalasi di VPS
 
 ```bash
