@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="assets/site.css">
 <script src="assets/common.js"></script>
 </head>
-<body>
+<body class="app-page">
 
 <nav class="navbar navbar-expand-lg navbar-dark doc-navbar">
   <div class="container-fluid px-3 px-lg-4">
@@ -27,207 +27,173 @@
   </div>
 </nav>
 
-<div class="app-wrap">
-  <div class="d-flex flex-wrap align-items-end justify-content-between gap-2 mb-4">
+<div class="page-head">
+  <div class="app-wrap d-flex flex-wrap align-items-end justify-content-between gap-3">
     <div>
-      <h1 class="h2 fw-bold mb-1">Riwayat Pengajuan Layanan</h1>
-      <p class="text-body-secondary mb-0">Cari pengajuan SKCK dan Izin Keramaian berdasarkan NIK.</p>
+      <div class="page-crumb">Layanan Publik &rsaquo; SKCK &amp; Izin Keramaian</div>
+      <h1 class="page-title">Riwayat Pengajuan Layanan</h1>
     </div>
-    <span id="mode-badge" class="badge text-bg-warning">Menampilkan data contoh</span>
-  </div>
-
-  <div class="row g-4">
-    <!-- Form pencarian -->
-    <div class="col-lg-4 col-xl-3">
-      <form id="lookup-form" class="card shadow-sm" novalidate>
-        <div class="card-header bg-body fw-semibold">Pencarian</div>
-        <div class="card-body">
-          <div class="mb-3">
-            <label for="nik" class="form-label">NIK</label>
-            <input id="nik" class="form-control font-monospace" inputmode="numeric" maxlength="16" placeholder="16 digit NIK" value="0000000000000001" required>
-            <div class="invalid-feedback">NIK harus 16 digit angka.</div>
-          </div>
-          <div class="mb-3">
-            <span class="form-label d-block">Layanan</span>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" id="svc-skck" value="skck" checked>
-              <label class="form-check-label" for="svc-skck">SKCK</label>
-            </div>
-            <div class="form-check form-check-inline">
-              <input class="form-check-input" type="checkbox" id="svc-ik" value="crowd_permit" checked>
-              <label class="form-check-label" for="svc-ik">Izin Keramaian</label>
-            </div>
-          </div>
-          <div class="mb-3">
-            <label for="per-page" class="form-label">Data per halaman</label>
-            <select id="per-page" class="form-select">
-              <option value="10">10</option>
-              <option value="20" selected>20</option>
-              <option value="50">50</option>
-            </select>
-          </div>
-
-          <div class="alert alert-secondary small py-2 mb-3 d-none d-flex align-items-center gap-2" id="conn-status" role="status">
-            <span class="spinner-border spinner-border-sm" id="conn-spin" aria-hidden="true"></span>
-            <span id="conn-text">Memeriksa koneksi ke API SKCK...</span>
-          </div>
-
-          <div class="accordion mb-3" id="conn">
-            <div class="accordion-item">
-              <h2 class="accordion-header">
-                <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#conn-body" aria-expanded="false" aria-controls="conn-body">Koneksi API</button>
-              </h2>
-              <div id="conn-body" class="accordion-collapse collapse" data-bs-parent="#conn">
-                <div class="accordion-body">
-                  <div class="mb-3">
-                    <label for="host" class="form-label">Host</label>
-                    <input id="host" class="form-control" placeholder="https://api.contoh.go.id" autocomplete="off">
-                  </div>
-                  <div class="mb-3">
-                    <label for="app-id" class="form-label">App-Id</label>
-                    <input id="app-id" class="form-control" autocomplete="off">
-                  </div>
-                  <div class="mb-2">
-                    <label for="access-key" class="form-label">Access-Key</label>
-                    <input id="access-key" type="password" class="form-control" autocomplete="off">
-                  </div>
-                  <p class="small text-body-secondary mb-0">Tidak disimpan. Untuk produksi, panggil API dari backend agar Access-Key tidak terbuka di browser.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-primary" id="btn-search">
-              <span class="spinner-border spinner-border-sm me-2 d-none" id="spin" aria-hidden="true"></span>Cari ke API
-            </button>
-            <button type="button" class="btn btn-outline-secondary" id="btn-sample">Pakai data contoh</button>
-          </div>
-        </div>
-      </form>
-    </div>
-
-    <!-- Hasil -->
-    <div class="col-lg-8 col-xl-9">
-      <div id="alert-box"></div>
-
-      <div class="card shadow-sm mb-4" id="profile-card">
-        <div class="card-body d-flex flex-wrap align-items-center gap-3">
-          <div class="profile-avatar" id="p-avatar">?</div>
-          <div class="me-auto">
-            <div class="fw-semibold fs-5" id="p-name">-</div>
-            <div class="small text-body-secondary">ID pengguna <span id="p-id" class="font-monospace">-</span> &middot; NIK <span id="p-nik" class="font-monospace">-</span></div>
-          </div>
-          <div class="d-flex gap-4 text-center">
-            <div><div class="stat" id="s-skck">0</div><div class="small text-body-secondary">SKCK</div></div>
-            <div><div class="stat" id="s-ik">0</div><div class="small text-body-secondary">Izin Keramaian</div></div>
-            <div><div class="stat" id="s-total">0</div><div class="small text-body-secondary">Total</div></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card shadow-sm">
-        <div class="card-header bg-body pb-0 border-bottom-0">
-          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-            <ul class="nav nav-tabs card-header-tabs mx-0" role="tablist">
-              <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="tab-skck-btn" data-bs-toggle="tab" data-bs-target="#tab-skck" type="button" role="tab" aria-controls="tab-skck" aria-selected="true">SKCK <span class="badge text-bg-secondary" id="c-skck">0</span></button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" id="tab-ik-btn" data-bs-toggle="tab" data-bs-target="#tab-ik" type="button" role="tab" aria-controls="tab-ik" aria-selected="false">Izin Keramaian <span class="badge text-bg-secondary" id="c-ik">0</span></button>
-              </li>
-            </ul>
-            <input type="search" id="filter" class="form-control form-control-sm" style="max-width:240px;min-height:38px" placeholder="Saring nomor atau nama..." aria-label="Saring tabel">
-          </div>
-        </div>
-        <div class="tab-content">
-          <div class="tab-pane fade show active" id="tab-skck" role="tabpanel" aria-labelledby="tab-skck-btn">
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0 stack">
-                <thead class="table-light">
-                  <tr><th>No. Registrasi</th><th>Diajukan (WIB)</th><th>Keperluan</th><th>Klasifikasi</th><th>Lokasi Cetak</th><th>Status</th><th class="text-end">Aksi</th></tr>
-                </thead>
-                <tbody id="rows-skck"></tbody>
-              </table>
-            </div>
-          </div>
-          <div class="tab-pane fade" id="tab-ik" role="tabpanel" aria-labelledby="tab-ik-btn">
-            <div class="table-responsive">
-              <table class="table table-hover align-middle mb-0 stack">
-                <thead class="table-light">
-                  <tr><th>No. Registrasi</th><th>Diajukan (WIB)</th><th>Nama Kegiatan</th><th>Jenis</th><th>Tgl. Peninjauan</th><th>Status</th><th class="text-end">Aksi</th></tr>
-                </thead>
-                <tbody id="rows-ik"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        <div class="card-footer bg-body d-flex flex-wrap align-items-center justify-content-between gap-2">
-          <span class="small text-body-secondary" id="page-info">-</span>
-          <nav aria-label="Halaman"><ul class="pagination pagination-sm mb-0" id="pager"></ul></nav>
-        </div>
-      </div>
-      <p class="small text-body-secondary mt-3 mb-0" id="sample-note">Data contoh: nama, nomor registrasi, dan NIK di atas bukan data asli.</p>
+    <div class="conn d-none" id="conn-status" role="status">
+      <span class="conn-dot" id="conn-dot"></span><span id="conn-text">Memeriksa koneksi ke API SKCK...</span>
     </div>
   </div>
 </div>
+
+<main class="app-wrap py-4">
+
+  <form id="lookup-form" class="panel mb-4" novalidate>
+    <div class="panel-body">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-5">
+          <label for="nik" class="form-label">Nomor Induk Kependudukan (NIK)</label>
+          <input id="nik" class="form-control font-monospace" inputmode="numeric" maxlength="16" placeholder="16 digit NIK" autocomplete="off" required>
+          <div class="invalid-feedback">NIK harus 16 digit angka.</div>
+        </div>
+        <div class="col-md-4">
+          <label for="service" class="form-label">Jenis layanan</label>
+          <select id="service" class="form-select">
+            <option value="all">Semua layanan</option>
+            <option value="skck">SKCK</option>
+            <option value="crowd_permit">Izin Keramaian</option>
+          </select>
+        </div>
+        <div class="col-md-3 d-grid">
+          <button type="submit" class="btn btn-primary" id="btn-search">
+            <span class="spinner-border spinner-border-sm me-2 d-none" id="spin" aria-hidden="true"></span>Cari
+          </button>
+        </div>
+      </div>
+
+      <div id="conn" class="mt-3">
+        <a class="small" data-bs-toggle="collapse" href="#conn-body" role="button" aria-expanded="false" aria-controls="conn-body">Pengaturan koneksi API</a>
+        <div id="conn-body" class="collapse">
+          <div class="row g-3 pt-3">
+            <div class="col-md-5"><label for="host" class="form-label">Host</label><input id="host" class="form-control" placeholder="https://host-api/admin-be" autocomplete="off"></div>
+            <div class="col-md-3"><label for="app-id" class="form-label">App-Id</label><input id="app-id" class="form-control" autocomplete="off"></div>
+            <div class="col-md-4"><label for="access-key" class="form-label">Access-Key</label><input id="access-key" type="password" class="form-control" autocomplete="off"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <div id="alert-box"></div>
+
+  <div id="empty-state" class="panel">
+    <div class="panel-body empty">
+      <div class="fw-semibold mb-1">Belum ada data ditampilkan</div>
+      <div class="text-body-secondary">Masukkan NIK pemohon, pilih jenis layanan, lalu tekan Cari.</div>
+    </div>
+  </div>
+
+  <div id="result" class="d-none">
+    <section class="panel mb-4" aria-labelledby="h-pemohon">
+      <div class="panel-head" id="h-pemohon">Data Pemohon</div>
+      <div class="panel-body">
+        <dl class="facts">
+          <div><dt>Nama Pemohon</dt><dd id="p-name">-</dd></div>
+          <div><dt>NIK</dt><dd class="font-monospace" id="p-nik">-</dd></div>
+          <div><dt>ID Pengguna</dt><dd class="font-monospace" id="p-id">-</dd></div>
+          <div><dt>Jumlah Pengajuan</dt><dd><span id="s-skck">0</span> SKCK &middot; <span id="s-ik">0</span> Izin Keramaian</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="panel" aria-label="Daftar pengajuan">
+      <div class="panel-head d-flex flex-wrap align-items-end justify-content-between gap-2 pb-0">
+        <ul class="nav nav-tabs border-0" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-skck-btn" data-bs-toggle="tab" data-bs-target="#tab-skck" type="button" role="tab" aria-controls="tab-skck" aria-selected="true">SKCK (<span id="c-skck">0</span>)</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-ik-btn" data-bs-toggle="tab" data-bs-target="#tab-ik" type="button" role="tab" aria-controls="tab-ik" aria-selected="false">Izin Keramaian (<span id="c-ik">0</span>)</button>
+          </li>
+        </ul>
+        <input type="search" id="filter" class="form-control form-control-sm mb-2" style="max-width:260px;min-height:36px" placeholder="Saring nomor registrasi atau kegiatan" aria-label="Saring tabel">
+      </div>
+      <div class="tab-content">
+        <div class="tab-pane fade show active" id="tab-skck" role="tabpanel" aria-labelledby="tab-skck-btn">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 stack data-table">
+              <thead>
+                <tr><th>No. Registrasi</th><th>Tanggal Pengajuan</th><th>Keperluan</th><th>Klasifikasi</th><th>Lokasi Cetak</th><th>Status</th><th class="text-end"></th></tr>
+              </thead>
+              <tbody id="rows-skck"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="tab-pane fade" id="tab-ik" role="tabpanel" aria-labelledby="tab-ik-btn">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 stack data-table">
+              <thead>
+                <tr><th>No. Registrasi</th><th>Tanggal Pengajuan</th><th>Nama Kegiatan</th><th>Jenis Kegiatan</th><th>Tanggal Peninjauan</th><th>Status</th><th class="text-end"></th></tr>
+              </thead>
+              <tbody id="rows-ik"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="panel-foot d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div class="d-flex align-items-center gap-2 small text-body-secondary">
+          <span id="page-info">-</span>
+          <span class="vr mx-1"></span>
+          <label for="per-page" class="mb-0">Tampilkan</label>
+          <select id="per-page" class="form-select form-select-sm w-auto" style="min-height:32px">
+            <option value="10">10</option>
+            <option value="20" selected>20</option>
+            <option value="50">50</option>
+          </select>
+          <span>per halaman</span>
+        </div>
+        <nav aria-label="Halaman"><ul class="pagination pagination-sm mb-0" id="pager"></ul></nav>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="app-foot">
+  <div class="app-wrap small text-body-secondary">Dokumentasi SKCK &middot; API Lookup Pengajuan v1 &middot; Waktu ditampilkan dalam WIB</div>
+</footer>
 
 <!-- Modal detail -->
 <div class="modal fade" id="detail-modal" tabindex="-1" aria-labelledby="detail-title" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h2 class="modal-title fs-5" id="detail-title">Detail</h2>
+        <h2 class="modal-title fs-6 fw-semibold" id="detail-title">Detail</h2>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
       </div>
-      <div class="modal-body"><dl class="row mb-0" id="detail-body"></dl></div>
+      <div class="modal-body"><dl class="row mb-0 detail-list" id="detail-body"></dl></div>
       <div class="modal-footer" id="detail-foot">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Dibuat otomatis oleh install-docs.sh dari file ENV di server; tidak ada di repo. -->
+<!-- Dibuat otomatis dari ENV di server (install-docs.sh / server lokal); tidak ada di repo. -->
 <script src="assets/config.js"></script>
 <script src="assets/bootstrap.bundle.min.js"></script>
 <script>
 {
-  const SAMPLE = {
-    status: true, code: 200, timestamp: '2026-11-23T10:00:00+07:00',
-    message: { title: 'Pengajuan Layanan', description: 'Lookup pengajuan selesai' },
-    data: {
-      user: { id: 1042, full_name: 'User Uji' },
-      skck: [
-        { id: '01K7QDR1B8NFD6ZF886SNS9D44', registration_number: 'SKCK-TEST-1', status: 'completed', submitted_at: '2026-11-23T02:00:00Z', purpose: 'Pekerjaan', print_location: 'Polres Contoh', classification: 'DALAM NEGERI', application_path: '/skck/tes-final.pdf' },
-        { id: '01K7QE4M2W3XJ8Y0R5T9ZB1C7H', registration_number: 'SKCK-TEST-2', status: 'approved', submitted_at: '2026-10-14T06:35:00Z', purpose: 'Melanjutkan Pendidikan', print_location: 'Polsek Contoh Barat', classification: 'DALAM NEGERI', application_path: '/skck/tes-2.pdf' },
-        { id: '01K7QE9P5D6KQ2N8V4F1HS3M0A', registration_number: 'SKCK-TEST-3', status: 'waiting_payment', submitted_at: '2026-09-02T03:10:00Z', purpose: 'Visa / Keluar Negeri', print_location: 'Polda Contoh', classification: 'LUAR NEGERI', application_path: '' }
-      ],
-      crowd_permit: [
-        { id: 73, registration_number: 'IK-TEST-1', status: 'schedule_confirmed', submitted_at: '2026-11-23T01:00:00Z', activity_name: 'Pertemuan warga', activity_type_name: 'Pertemuan', requested_review_date: '2026-11-26' },
-        { id: 58, registration_number: 'IK-TEST-2', status: 'schedule_confirmed', submitted_at: '2026-08-11T09:20:00Z', activity_name: 'Jalan sehat RW 05', activity_type_name: 'Olahraga', requested_review_date: '2026-08-15' }
-      ]
-    },
-    info: { current_page: 1, per_page: 20, total: 5, last_page: 1 }
-  };
-
   const STATUS = {
-    waiting_payment: ['Menunggu Pembayaran', 'text-bg-warning'],
-    approved: ['Disetujui', 'text-bg-success'],
-    completed: ['Selesai', 'text-bg-primary'],
-    schedule_confirmed: ['Jadwal Dikonfirmasi', 'text-bg-info']
+    waiting_payment: ['Menunggu Pembayaran', 'st-warn'],
+    approved: ['Disetujui', 'st-ok'],
+    completed: ['Selesai', 'st-done'],
+    schedule_confirmed: ['Jadwal Dikonfirmasi', 'st-info']
   };
 
   const $ = id => document.getElementById(id);
+  const CFG = window.APP_CONFIG || {};
   const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const badge = s => { const [l, c] = STATUS[s] || [s || '-', 'text-bg-secondary']; return `<span class="badge rounded-pill ${c}">${esc(l)}</span>`; };
+  const status = s => { const [l, c] = STATUS[s] || [s || '-', 'st-other']; return `<span class="st ${c}">${esc(l)}</span>`; };
   const fmtDT = iso => { if (!iso) return '-'; const d = new Date(iso); return isNaN(d) ? esc(iso) : d.toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }); };
-  const fmtD = s => { if (!s) return '-'; const d = new Date(s + 'T00:00:00+07:00'); return isNaN(d) ? esc(s) : d.toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', day: '2-digit', month: 'short', year: 'numeric' }); };
-  const docUrl = p => { if (!p) return ''; const h = $('host').value.trim().replace(/\/+$/, ''); return /^https?:/i.test(p) ? p : (h ? h + p : ''); };
+  const fmtD = s => { if (!s) return '-'; const d = new Date(s + 'T00:00:00+07:00'); return isNaN(d) ? esc(s) : d.toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', day: '2-digit', month: 'long', year: 'numeric' }); };
+  const docUrl = p => { if (!p) return ''; if (/^https?:/i.test(p)) return p; if (CFG.proxy) return ''; const h = $('host').value.trim().replace(/\/+$/, ''); return h ? h + p : ''; };
 
-  let state = { json: null, sample: true, page: 1 };
+  let state = { json: null, nik: '', page: 1 };
 
-  const empty = (cols, text) => `<tr><td colspan="${cols}" class="p-0"><div class="alert alert-light border m-3">${text}</div></td></tr>`;
+  const emptyRow = text => `<tr class="no-stack"><td colspan="7" class="text-center text-body-secondary py-4">${text}</td></tr>`;
 
   function renderRows() {
     const json = state.json; if (!json) return;
@@ -236,56 +202,56 @@
     const skck = (json.data.skck || []).filter(match);
     const ik = (json.data.crowd_permit || []).filter(match);
 
-    $('rows-skck').innerHTML = skck.length ? skck.map((r, i) => `
+    $('rows-skck').innerHTML = skck.length ? skck.map(r => `
       <tr>
-        <td class="font-monospace small nowrap">${esc(r.registration_number)}</td>
+        <td class="font-monospace nowrap">${esc(r.registration_number)}</td>
         <td class="nowrap">${fmtDT(r.submitted_at)}</td>
         <td>${esc(r.purpose)}</td>
-        <td><span class="badge text-bg-light border">${esc(r.classification)}</span></td>
+        <td class="nowrap">${esc(r.classification)}</td>
         <td>${esc(r.print_location)}</td>
-        <td>${badge(r.status)}</td>
-        <td class="text-end nowrap"><button type="button" class="btn btn-sm btn-outline-primary" data-type="skck" data-id="${esc(r.id)}">Detail</button></td>
-      </tr>`).join('') : empty(7, q ? 'Tidak ada SKCK yang cocok dengan saringan.' : 'Belum ada pengajuan SKCK untuk NIK ini.');
+        <td>${status(r.status)}</td>
+        <td class="text-end nowrap"><button type="button" class="btn btn-link btn-sm p-0" data-type="skck" data-id="${esc(r.id)}">Lihat detail</button></td>
+      </tr>`).join('') : emptyRow(q ? 'Tidak ada data SKCK yang sesuai saringan.' : 'Tidak ada pengajuan SKCK untuk NIK ini.');
 
     $('rows-ik').innerHTML = ik.length ? ik.map(r => `
       <tr>
-        <td class="font-monospace small nowrap">${esc(r.registration_number)}</td>
+        <td class="font-monospace nowrap">${esc(r.registration_number)}</td>
         <td class="nowrap">${fmtDT(r.submitted_at)}</td>
         <td>${esc(r.activity_name)}</td>
         <td>${esc(r.activity_type_name)}</td>
         <td class="nowrap">${fmtD(r.requested_review_date)}</td>
-        <td>${badge(r.status)}</td>
-        <td class="text-end nowrap"><button type="button" class="btn btn-sm btn-outline-primary" data-type="ik" data-id="${esc(r.id)}">Detail</button></td>
-      </tr>`).join('') : empty(7, q ? 'Tidak ada izin keramaian yang cocok dengan saringan.' : 'Belum ada pengajuan izin keramaian untuk NIK ini.');
+        <td>${status(r.status)}</td>
+        <td class="text-end nowrap"><button type="button" class="btn btn-link btn-sm p-0" data-type="ik" data-id="${esc(r.id)}">Lihat detail</button></td>
+      </tr>`).join('') : emptyRow(q ? 'Tidak ada data izin keramaian yang sesuai saringan.' : 'Tidak ada pengajuan izin keramaian untuk NIK ini.');
   }
 
   function render(json, nik) {
-    state.json = json;
+    state.json = json; state.nik = nik;
     const d = json.data || {}; const u = d.user;
-    $('p-name').textContent = u ? u.full_name : 'Pengguna tidak ditemukan';
+    $('p-name').textContent = u ? u.full_name : 'Tidak terdaftar';
     $('p-id').textContent = u ? u.id : '-';
     $('p-nik').textContent = nik;
-    $('p-avatar').textContent = u ? u.full_name.split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase() : '?';
     const ns = (d.skck || []).length, ni = (d.crowd_permit || []).length;
     $('s-skck').textContent = $('c-skck').textContent = ns;
     $('s-ik').textContent = $('c-ik').textContent = ni;
     const info = json.info || {};
-    $('s-total').textContent = info.total ?? ns + ni;
-    $('page-info').textContent = `Halaman ${info.current_page ?? 1} dari ${info.last_page ?? 1} · ${info.total ?? ns + ni} data`;
+    const total = info.total ?? ns + ni;
+    $('page-info').textContent = `Halaman ${info.current_page ?? 1} dari ${info.last_page ?? 1} · ${total} data`;
     renderPager(info);
-    $('mode-badge').className = 'badge ' + (state.sample ? 'text-bg-warning' : 'text-bg-success');
-    $('mode-badge').textContent = state.sample ? 'Menampilkan data contoh' : 'Data dari API';
-    $('sample-note').classList.toggle('d-none', !state.sample);
+    $('empty-state').classList.add('d-none');
+    $('result').classList.remove('d-none');
+    if (!ns && ni) bootstrap.Tab.getOrCreateInstance($('tab-ik-btn')).show();
+    else bootstrap.Tab.getOrCreateInstance($('tab-skck-btn')).show();
     renderRows();
   }
 
   function renderPager(info) {
     const cur = info.current_page || 1, last = info.last_page || 1;
     const item = (p, label, dis, act) => `<li class="page-item${dis ? ' disabled' : ''}${act ? ' active' : ''}"><button type="button" class="page-link" data-page="${p}"${dis ? ' tabindex="-1"' : ''}>${label}</button></li>`;
-    let html = item(cur - 1, '&laquo;', cur <= 1, false);
+    let html = item(cur - 1, 'Sebelumnya', cur <= 1, false);
     const from = Math.max(1, cur - 2), to = Math.min(last, cur + 2);
     for (let p = from; p <= to; p++) html += item(p, p, false, p === cur);
-    html += item(cur + 1, '&raquo;', cur >= last, false);
+    html += item(cur + 1, 'Berikutnya', cur >= last, false);
     $('pager').innerHTML = html;
   }
 
@@ -296,13 +262,8 @@
   function setConn(st) {
     if ($('conn-status').classList.contains('d-none')) return;
     const ok = st === 'ok';
-    $('conn-status').className = 'alert small py-2 mb-3 d-flex align-items-center gap-2 ' + (ok ? 'alert-success' : 'alert-danger');
-    $('conn-spin').classList.add('d-none');
+    $('conn-status').className = 'conn ' + (ok ? 'conn-ok' : 'conn-fail');
     $('conn-text').textContent = ok ? 'Terhubung ke API SKCK' : 'Gagal Menghubungkan ke API SKCK';
-  }
-
-  function selectedServices() {
-    return ['svc-skck', 'svc-ik'].map(id => $(id)).filter(c => c.checked).map(c => c.value);
   }
 
   function nikValid() {
@@ -311,33 +272,20 @@
     return ok;
   }
 
-  function useSample() {
-    const svc = selectedServices();
-    const json = JSON.parse(JSON.stringify(SAMPLE));
-    if (!svc.includes('skck')) json.data.skck = [];
-    if (!svc.includes('crowd_permit')) json.data.crowd_permit = [];
-    json.info.total = json.data.skck.length + json.data.crowd_permit.length;
-    json.info.per_page = +$('per-page').value;
-    state.sample = true;
-    showAlert('', '');
-    render(json, $('nik').value.trim() || '-');
-  }
-
   async function search(page) {
-    if (!nikValid()) return;
-    const svc = selectedServices();
-    if (!svc.length) { showAlert('warning', 'Pilih minimal satu layanan.'); return; }
+    if (!nikValid()) { $('nik').focus(); return; }
     const host = $('host').value.trim().replace(/\/+$/, '');
     const viaProxy = !!CFG.proxy;
     if (!host || (!viaProxy && (!$('app-id').value.trim() || !$('access-key').value))) {
-      new bootstrap.Collapse($('conn-body'), { toggle: false }).show();
-      showAlert('warning', 'Isi Host, App-Id, dan Access-Key di bagian <strong>Koneksi API</strong>.');
+      bootstrap.Collapse.getOrCreateInstance($('conn-body'), { toggle: false }).show();
+      showAlert('warning', 'Lengkapi Host, App-Id, dan Access-Key pada <strong>Pengaturan koneksi API</strong>.');
       return;
     }
     $('spin').classList.remove('d-none'); $('btn-search').disabled = true;
     try {
+      const svc = $('service').value;
       const body = { nik: $('nik').value.trim(), page, per_page: +$('per-page').value };
-      if (svc.length === 1) body.services = svc;
+      if (svc !== 'all') body.services = [svc];
       const res = await fetch(host + '/api/v1/external/service-applications/lookup', {
         method: 'POST',
         headers: viaProxy
@@ -349,15 +297,15 @@
       setConn(res.ok || (res.status < 500 && ![401, 403].includes(res.status)) ? 'ok' : 'fail');
       if (!res.ok || !json || !json.data) {
         const msg = json && json.message ? (json.message.description || json.message.title || '') : '';
-        showAlert('danger', `<strong>Gagal (HTTP ${res.status}).</strong> ${esc(msg)}`);
+        showAlert('danger', `<strong>Permintaan gagal (HTTP ${res.status}).</strong> ${esc(msg)}`);
         return;
       }
-      state.sample = false; state.page = page;
+      state.page = page;
       showAlert('', '');
       render(json, body.nik);
     } catch (e) {
       setConn('fail');
-      showAlert('danger', '<strong>Tidak bisa menghubungi API.</strong> Periksa host dan pengaturan CORS server. Jika halaman ini dibuka dari pratinjau Claude, panggilan ke host lain memang diblokir. Jalankan file ini dari server Anda sendiri.');
+      showAlert('danger', '<strong>Gagal Menghubungkan ke API SKCK.</strong> Pastikan GlobalProtect aktif dan server dapat dijangkau.');
     } finally {
       $('spin').classList.add('d-none'); $('btn-search').disabled = false;
     }
@@ -367,47 +315,40 @@
     const list = type === 'skck' ? state.json.data.skck : state.json.data.crowd_permit;
     const r = list.find(x => String(x.id) === id); if (!r) return;
     const rows = type === 'skck'
-      ? [['No. Registrasi', esc(r.registration_number)], ['ID', `<span class="font-monospace small">${esc(r.id)}</span>`], ['Status', badge(r.status)], ['Diajukan', fmtDT(r.submitted_at) + ' WIB'], ['Keperluan', esc(r.purpose)], ['Klasifikasi', esc(r.classification)], ['Lokasi Cetak', esc(r.print_location)], ['Path Dokumen', r.application_path ? `<code>${esc(r.application_path)}</code>` : '-']]
-      : [['No. Registrasi', esc(r.registration_number)], ['ID', esc(r.id)], ['Status', badge(r.status)], ['Diajukan', fmtDT(r.submitted_at) + ' WIB'], ['Nama Kegiatan', esc(r.activity_name)], ['Jenis Kegiatan', esc(r.activity_type_name)], ['Tgl. Peninjauan', fmtD(r.requested_review_date)]];
-    $('detail-title').textContent = (type === 'skck' ? 'Detail SKCK ' : 'Detail Izin Keramaian ') + r.registration_number;
-    $('detail-body').innerHTML = rows.map(([k, v]) => `<dt class="col-sm-4 text-body-secondary fw-normal">${k}</dt><dd class="col-sm-8">${v}</dd>`).join('');
+      ? [['No. Registrasi', `<span class="font-monospace">${esc(r.registration_number)}</span>`], ['Status', status(r.status)], ['Tanggal Pengajuan', fmtDT(r.submitted_at) + ' WIB'], ['Keperluan', esc(r.purpose)], ['Klasifikasi', esc(r.classification)], ['Lokasi Cetak', esc(r.print_location)], ['ID Pengajuan', `<span class="font-monospace small">${esc(r.id)}</span>`]]
+      : [['No. Registrasi', `<span class="font-monospace">${esc(r.registration_number)}</span>`], ['Status', status(r.status)], ['Tanggal Pengajuan', fmtDT(r.submitted_at) + ' WIB'], ['Nama Kegiatan', esc(r.activity_name)], ['Jenis Kegiatan', esc(r.activity_type_name)], ['Tanggal Peninjauan', fmtD(r.requested_review_date)], ['ID Pengajuan', `<span class="font-monospace small">${esc(r.id)}</span>`]];
+    $('detail-title').textContent = type === 'skck' ? 'Detail Pengajuan SKCK' : 'Detail Pengajuan Izin Keramaian';
+    $('detail-body').innerHTML = rows.map(([k, v]) => `<dt class="col-sm-5">${k}</dt><dd class="col-sm-7">${v}</dd>`).join('');
     const url = type === 'skck' ? docUrl(r.application_path) : '';
-    $('detail-foot').innerHTML = (url ? `<a class="btn btn-primary" href="${esc(url)}" target="_blank" rel="noopener">Buka PDF</a>` : '') + '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>';
+    $('detail-foot').innerHTML = (url ? `<a class="btn btn-primary" href="${esc(url)}" target="_blank" rel="noopener">Buka Dokumen SKCK</a>` : '') + '<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>';
     bootstrap.Modal.getOrCreateInstance($('detail-modal')).show();
   }
 
   $('lookup-form').addEventListener('submit', e => { e.preventDefault(); search(1); });
-  $('btn-sample').addEventListener('click', () => { if (nikValid()) useSample(); });
   $('nik').addEventListener('input', () => { $('nik').value = $('nik').value.replace(/\D/g, ''); if ($('nik').classList.contains('is-invalid')) nikValid(); });
   $('filter').addEventListener('input', renderRows);
+  $('per-page').addEventListener('change', () => { if (state.json) search(1); });
   document.addEventListener('click', e => {
     const b = e.target.closest('[data-type][data-id]'); if (b) { openDetail(b.dataset.type, b.dataset.id); return; }
     const p = e.target.closest('#pager [data-page]');
-    if (p && !p.parentElement.classList.contains('disabled') && !p.parentElement.classList.contains('active')) {
-      if (state.sample) return; search(+p.dataset.page);
-    }
+    if (p && !p.parentElement.classList.contains('disabled') && !p.parentElement.classList.contains('active')) search(+p.dataset.page);
   });
 
-  // Konfigurasi dari ENV (assets/config.js). Kalau lengkap, form koneksi disembunyikan.
-  const CFG = window.APP_CONFIG || {};
+  // Konfigurasi dari ENV (assets/config.js). Kalau lengkap, pengaturan koneksi disembunyikan.
   if (CFG.apiHost && (CFG.proxy || (CFG.appId && CFG.accessKey))) {
     $('host').value = CFG.apiHost;
     $('app-id').value = CFG.appId || '';
     $('access-key').value = CFG.accessKey || '';
     $('conn').classList.add('d-none');
     $('conn-status').classList.remove('d-none');
-    // Cek apakah API terjangkau (mis. GlobalProtect aktif). Tanpa kredensial, tanpa data.
     if (CFG.healthUrl) {
       fetch(CFG.healthUrl, { cache: 'no-store' }).then(r => r.json()).then(j => setConn(j.ok ? 'ok' : 'fail'), () => setConn('fail'));
     } else {
-      fetch(CFG.apiHost.replace(/\/+$/, '') + '/', { mode: 'no-cors', cache: 'no-store' })
-        .then(() => setConn('ok'), () => setConn('fail'));
+      fetch(CFG.apiHost.replace(/\/+$/, '') + '/', { mode: 'no-cors', cache: 'no-store' }).then(() => setConn('ok'), () => setConn('fail'));
     }
   } else if (CFG.apiHost) {
     $('host').value = CFG.apiHost;
   }
-
-  useSample();
 }
 </script>
 </body>
