@@ -57,6 +57,8 @@ code{overflow-wrap:anywhere;font-size:.875em}
 .doc-navbar .nav-link{color:rgba(255,255,255,.78);border-bottom:2px solid transparent}
 .doc-navbar .nav-link:hover{color:#fff}
 .doc-navbar .nav-link.active{color:var(--gold-light,#e8c766);border-bottom-color:var(--gold)}
+.brand-text{white-space:normal;line-height:1.2}
+@media (max-width:575.98px){.doc-navbar .navbar-brand{font-size:.95rem;margin-right:.5rem;max-width:calc(100% - 84px)}.doc-navbar .navbar-toggler{padding:.25rem .5rem}}
 .brand-logo{height:36px;width:auto;margin-right:10px;flex:none}
 .brand-mark[hidden]{display:none}
 .brand-mark{display:inline-grid;place-items:center;min-width:30px;height:30px;padding:0 6px;border-radius:8px;background:var(--gold);color:#2a1a0b;font-weight:800;font-size:12px;margin-right:8px}
