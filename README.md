@@ -65,7 +65,6 @@ untuk aplikasi mitra, lalu meneruskannya ke API sumber (admin-be). Server ini ju
 docs, data, dan VC. Tanpa database dan tanpa `npm install`.
 
 - Kredensial API sumber: `/etc/docs-super-apps/api.env` (`UPSTREAM_HOST`, `UPSTREAM_APP_ID`, `UPSTREAM_ACCESS_KEY`, `INSECURE_TLS`)
-- Kredensial SKCK: `POST /api/v1/external/skck/credential` menggabungkan data API sumber dengan atribut manual per NIK di `data/atribut-skck.json` menjadi 17 atribut katalog `id.idctf.skck.1`
 - Klien mitra: `/etc/docs-super-apps/clients.json`, dikelola dengan `node api/create-client.js buat "Nama"`
 
 ## Database (PostgreSQL, opsional, tidak dipakai API saat ini)
