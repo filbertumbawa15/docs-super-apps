@@ -118,7 +118,7 @@
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0 stack data-table">
               <thead>
-                <tr><th>No. Registrasi</th><th>Tanggal Pengajuan</th><th>Keperluan</th><th>Klasifikasi</th><th>Lokasi Cetak</th><th>Status</th><th class="text-end"></th></tr>
+                <tr><th>No. Registrasi</th><th>Tanggal Pengajuan</th><th>Keperluan</th><th>Klasifikasi</th><th>Status</th><th>Masa Berlaku</th><th class="text-end"></th></tr>
               </thead>
               <tbody id="rows-skck"></tbody>
             </table>
@@ -190,6 +190,22 @@
   const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const status = s => { const [l, c] = STATUS[s] || [s || '-', 'st-other']; return `<span class="st ${c}">${esc(l)}</span>`; };
   const fmtDT = iso => { if (!iso) return '-'; const d = new Date(iso); return isNaN(d) ? esc(iso) : d.toLocaleString('id-ID', { timeZone: 'Asia/Jakarta', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }); };
+  // Masa berlaku SKCK dari estimated_expires_on / estimated_validity_status / estimated_days_remaining
+  function validityInfo(r) {
+    if (!r.estimated_expires_on && !r.estimated_validity_status) return null;
+    let days = Number.isFinite(r.estimated_days_remaining) ? r.estimated_days_remaining : null;
+    if (days === null && r.estimated_expires_on) days = Math.ceil((new Date(r.estimated_expires_on + 'T23:59:59+07:00') - Date.now()) / 86400000);
+    const st = r.estimated_validity_status || (days !== null && days < 0 ? 'expired' : 'active');
+    if (st !== 'active') return { cls: 'st-other', label: 'Kedaluwarsa', days };
+    if (days !== null && days <= 30) return { cls: 'st-warn', label: 'Segera berakhir', days };
+    return { cls: 'st-ok', label: 'Berlaku', days };
+  }
+  const validity = r => {
+    const v = validityInfo(r); if (!v) return '<span class="text-body-secondary">-</span>';
+    const sub = r.estimated_expires_on ? `s.d. ${fmtD(r.estimated_expires_on)}` : '';
+    const left = v.days !== null && v.days >= 0 && v.label !== 'Kedaluwarsa' ? ` &middot; ${v.days} hari lagi` : '';
+    return `<span class="st ${v.cls}">${v.label}</span><div class="small text-body-secondary mt-1">${sub}${left}</div>`;
+  };
   const fmtD = s => { if (!s) return '-'; const d = new Date(s + 'T00:00:00+07:00'); return isNaN(d) ? esc(s) : d.toLocaleDateString('id-ID', { timeZone: 'Asia/Jakarta', day: '2-digit', month: 'long', year: 'numeric' }); };
   const docUrl = p => { if (!p) return ''; if (/^https?:/i.test(p)) return p; if (CFG.proxy) return ''; const h = $('host').value.trim().replace(/\/+$/, ''); return h ? h + p : ''; };
 
@@ -210,8 +226,8 @@
         <td class="nowrap">${fmtDT(r.submitted_at)}</td>
         <td>${esc(r.purpose)}</td>
         <td class="nowrap">${esc(r.classification)}</td>
-        <td>${esc(r.print_location)}</td>
         <td>${status(r.status)}</td>
+        <td class="nowrap">${validity(r)}</td>
         <td class="text-end nowrap"><button type="button" class="btn btn-link btn-sm p-0" data-type="skck" data-id="${esc(r.id)}">Lihat detail</button></td>
       </tr>`).join('') : emptyRow(q ? 'Tidak ada data SKCK yang sesuai saringan.' : 'Tidak ada pengajuan SKCK untuk NIK ini.');
 
@@ -317,7 +333,7 @@
     const list = type === 'skck' ? state.json.data.skck : state.json.data.crowd_permit;
     const r = list.find(x => String(x.id) === id); if (!r) return;
     const rows = type === 'skck'
-      ? [['No. Registrasi', `<span class="font-monospace">${esc(r.registration_number)}</span>`], ['Status', status(r.status)], ['Tanggal Pengajuan', fmtDT(r.submitted_at) + ' WIB'], ['Keperluan', esc(r.purpose)], ['Klasifikasi', esc(r.classification)], ['Lokasi Cetak', esc(r.print_location)], ['ID Pengajuan', `<span class="font-monospace small">${esc(r.id)}</span>`]]
+      ? [['No. Registrasi', `<span class="font-monospace">${esc(r.registration_number)}</span>`], ['Status', status(r.status)], ['Tanggal Pengajuan', fmtDT(r.submitted_at) + ' WIB'], ['Keperluan', esc(r.purpose)], ['Klasifikasi', esc(r.classification)], ['Lokasi Cetak', esc(r.print_location)], ['Masa Berlaku', validity(r)], ['ID Pengajuan', `<span class="font-monospace small">${esc(r.id)}</span>`]]
       : [['No. Registrasi', `<span class="font-monospace">${esc(r.registration_number)}</span>`], ['Status', status(r.status)], ['Tanggal Pengajuan', fmtDT(r.submitted_at) + ' WIB'], ['Nama Kegiatan', esc(r.activity_name)], ['Jenis Kegiatan', esc(r.activity_type_name)], ['Tanggal Peninjauan', fmtD(r.requested_review_date)], ['ID Pengajuan', `<span class="font-monospace small">${esc(r.id)}</span>`]];
     $('detail-title').textContent = type === 'skck' ? 'Detail Pengajuan SKCK' : 'Detail Pengajuan Izin Keramaian';
     $('detail-body').innerHTML = rows.map(([k, v]) => `<dt class="col-sm-5">${k}</dt><dd class="col-sm-7">${v}</dd>`).join('');

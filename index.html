@@ -166,11 +166,14 @@
         "id": "01K7QDR1B8NFD6ZF886SNS9D44",
         "registration_number": "SKCK-TEST-1",
         "status": "completed",
-        "submitted_at": "2026-11-23T02:00:00Z",
+        "submitted_at": "2026-11-23T02:00:00.000000Z",
         "purpose": "Pekerjaan",
         "print_location": "Polres Contoh",
         "classification": "DALAM NEGERI",
-        "application_path": "/skck/tes-final.pdf"
+        "application_path": "https://contoh.go.id/skck/tes-final.pdf",
+        "estimated_expires_on": "2027-05-25",
+        "estimated_validity_status": "active",
+        "estimated_days_remaining": 181
       }
     ],
     "crowd_permit": [
@@ -198,11 +201,14 @@
             <tr><td><code>id</code></td><td>string (ULID)</td><td>ID pengajuan.</td></tr>
             <tr><td><code>registration_number</code></td><td>string</td><td>Nomor registrasi.</td></tr>
             <tr><td><code>status</code></td><td>string</td><td>Salah satu dari <a href="#status">status SKCK</a>.</td></tr>
-            <tr><td><code>submitted_at</code></td><td>string</td><td>Waktu pengajuan, ISO 8601 UTC (<code>Z</code>).</td></tr>
+            <tr><td><code>submitted_at</code></td><td>string</td><td>Waktu pengajuan, ISO 8601 UTC (<code>Z</code>), dapat memuat mikrodetik.</td></tr>
             <tr><td><code>purpose</code></td><td>string</td><td>Keperluan, mis. "Pekerjaan".</td></tr>
             <tr><td><code>print_location</code></td><td>string</td><td>Lokasi cetak, mis. "Polres Contoh".</td></tr>
             <tr><td><code>classification</code></td><td>string</td><td>Klasifikasi, mis. "DALAM NEGERI".</td></tr>
-            <tr><td><code>application_path</code></td><td>string</td><td>Path dokumen PDF SKCK, relatif terhadap host.</td></tr>
+            <tr><td><code>application_path</code></td><td>string</td><td>URL dokumen SKCK (URL lengkap). Bisa kosong bila dokumen belum tersedia.</td></tr>
+            <tr><td><code>estimated_expires_on</code></td><td>string (tanggal)</td><td>Perkiraan tanggal berakhirnya masa berlaku SKCK, <code>YYYY-MM-DD</code>.</td></tr>
+            <tr><td><code>estimated_validity_status</code></td><td>string</td><td>Status masa berlaku, mis. <code>active</code>. Lihat <a href="#status">daftar status</a>.</td></tr>
+            <tr><td><code>estimated_days_remaining</code></td><td>integer</td><td>Sisa hari masa berlaku dihitung dari hari ini.</td></tr>
           </tbody>
         </table>
       </div>
@@ -242,6 +248,8 @@
             <tr><td>SKCK</td><td><code>approved</code></td><td><span class="st st-ok">Disetujui</span></td><td>Pengajuan disetujui</td></tr>
             <tr><td>SKCK</td><td><code>completed</code></td><td><span class="st st-done">Selesai</span></td><td>Pengajuan selesai diproses</td></tr>
             <tr><td>Izin keramaian</td><td><code>schedule_confirmed</code></td><td><span class="st st-info">Jadwal Dikonfirmasi</span></td><td>Jadwal peninjauan telah dikonfirmasi</td></tr>
+            <tr><td>Masa berlaku SKCK</td><td><code>active</code></td><td><span class="st st-ok">Berlaku</span></td><td>Masih dalam masa berlaku. Bila sisa &le; 30 hari ditampilkan <span class="st st-warn">Segera berakhir</span></td></tr>
+            <tr><td>Masa berlaku SKCK</td><td>nilai lain, mis. <code>expired</code></td><td><span class="st st-other">Kedaluwarsa</span></td><td>Nilai selain <code>active</code> belum terdokumentasi; konfirmasi ke tim backend</td></tr>
             <tr><td>Lainnya</td><td>nilai lain</td><td><span class="st st-other">sesuai nilai</span></td><td>Ditampilkan apa adanya</td></tr>
           </tbody>
         </table>

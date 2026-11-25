@@ -155,7 +155,8 @@
       type: ['VerifiableCredential', 'SKCKCredential'],
       issuer: { id: ISSUER.id, name: ISSUER.name },
       validFrom: row.submitted_at,
-      validUntil: addMonths(row.submitted_at, SKCK_VALID_MONTHS),
+      // Pakai estimated_expires_on dari API; perkiraan 6 bulan hanya bila field tidak ada.
+      validUntil: row.estimated_expires_on ? row.estimated_expires_on + 'T23:59:59+07:00' : addMonths(row.submitted_at, SKCK_VALID_MONTHS),
       credentialSubject: {
         id: 'did:key:holder-' + (user ? user.id : 'unknown'),
         name: user ? user.full_name : null,
@@ -164,7 +165,9 @@
         purpose: row.purpose,
         classification: row.classification,
         issuingUnit: row.print_location,
-        applicationStatus: row.status
+        applicationStatus: row.status,
+        validityStatus: row.estimated_validity_status ?? null,
+        daysRemaining: Number.isFinite(row.estimated_days_remaining) ? row.estimated_days_remaining : null
       },
       credentialStatus: { id: ISSUER.statusList + '#' + row.id, type: 'BitstringStatusListEntry', statusPurpose: 'revocation', statusListCredential: ISSUER.statusList },
       proof: { type: 'DataIntegrityProof', cryptosuite: 'ecdsa-rdfc-2019', verificationMethod: ISSUER.id + '#key-1', proofPurpose: 'assertionMethod', created: row.submitted_at, proofValue: 'z' + 'CONTOH'.padEnd(43, 'x') }
@@ -199,8 +202,8 @@
     nik: '3174012345678901',
     user: { id: 1042, full_name: 'Budi Santoso' },
     skck: [
-      { id: '01K7QDR1B8NFD6ZF886SNS9D44', registration_number: 'SKCK-2026-000184', status: 'completed', submitted_at: '2026-11-23T02:00:00Z', purpose: 'Melamar pekerjaan', print_location: 'Polres Metro Jakarta Selatan', classification: 'DALAM NEGERI' },
-      { id: '01K5ZP8M2W3XJ8Y0R5T9ZB1C7H', registration_number: 'SKCK-2026-000031', status: 'completed', submitted_at: '2026-03-10T03:00:00Z', purpose: 'Pendaftaran CPNS', print_location: 'Polsek Kebayoran Baru', classification: 'DALAM NEGERI' }
+      { id: '01K7QDR1B8NFD6ZF886SNS9D44', registration_number: 'SKCK-2026-000184', status: 'completed', submitted_at: '2026-11-23T02:00:00Z', purpose: 'Melamar pekerjaan', print_location: 'Polres Metro Jakarta Selatan', classification: 'DALAM NEGERI', estimated_expires_on: '2027-05-23', estimated_validity_status: 'active', estimated_days_remaining: 179 },
+      { id: '01K5ZP8M2W3XJ8Y0R5T9ZB1C7H', registration_number: 'SKCK-2026-000031', status: 'completed', submitted_at: '2026-03-10T03:00:00Z', purpose: 'Pendaftaran CPNS', print_location: 'Polsek Kebayoran Baru', classification: 'DALAM NEGERI', estimated_expires_on: '2026-09-10', estimated_validity_status: 'expired', estimated_days_remaining: -76 }
     ],
     crowd_permit: [
       { id: 73, registration_number: 'IK-2026-000073', status: 'schedule_confirmed', submitted_at: '2026-11-23T01:00:00Z', activity_name: 'Pertemuan warga RW 05', activity_type_name: 'Pertemuan', requested_review_date: '2026-11-26' }
@@ -227,6 +230,8 @@
   function vcState(vc) {
     const st = vc.credentialSubject.applicationStatus;
     if (vc.type.includes('SKCKCredential') && st !== 'completed') return ['pending', 'Belum terbit'];
+    const vs = vc.credentialSubject.validityStatus;
+    if (vs && vs !== 'active') return ['expired', 'Kedaluwarsa'];
     if (vc.validUntil && new Date(vc.validUntil) < new Date()) return ['expired', 'Kedaluwarsa'];
     return ['active', 'Aktif'];
   }
@@ -275,7 +280,7 @@
     const it = items[sel]; if (!it) return;
     const vc = it.vc, s = vc.credentialSubject, isSkck = it.kind === 'skck', [, lbl] = vcState(vc);
     const rows = isSkck
-      ? [['Nama Pemegang', s.name], ['NIK', `<span class="font-monospace">${esc(maskNik(s.nik))}</span>`], ['No. Registrasi', `<span class="font-monospace">${esc(s.registrationNumber)}</span>`], ['Keperluan', s.purpose], ['Klasifikasi', s.classification], ['Satuan Penerbit', s.issuingUnit], ['Status Pengajuan', APP[s.applicationStatus] || s.applicationStatus], ['Status Kredensial', lbl], ['Berlaku Sejak', fmt(vc.validFrom)], ['Berlaku Sampai', fmt(vc.validUntil)]]
+      ? [['Nama Pemegang', s.name], ['NIK', `<span class="font-monospace">${esc(maskNik(s.nik))}</span>`], ['No. Registrasi', `<span class="font-monospace">${esc(s.registrationNumber)}</span>`], ['Keperluan', s.purpose], ['Klasifikasi', s.classification], ['Satuan Penerbit', s.issuingUnit], ['Status Pengajuan', APP[s.applicationStatus] || s.applicationStatus], ['Status Kredensial', lbl], ['Berlaku Sejak', fmt(vc.validFrom)], ['Berlaku Sampai', fmt(vc.validUntil)], ['Sisa Masa Berlaku', s.daysRemaining !== null && s.daysRemaining !== undefined ? s.daysRemaining + ' hari' : '-']]
       : [['Nama Pemegang', s.name], ['NIK', `<span class="font-monospace">${esc(maskNik(s.nik))}</span>`], ['No. Registrasi', `<span class="font-monospace">${esc(s.registrationNumber)}</span>`], ['Nama Kegiatan', s.activityName], ['Jenis Kegiatan', s.activityType], ['Tanggal Peninjauan', fmt(s.reviewDate)], ['Status Pengajuan', APP[s.applicationStatus] || s.applicationStatus], ['Status Kredensial', lbl], ['Berlaku Sejak', fmt(vc.validFrom)], ['Berlaku Sampai', fmt(vc.validUntil)]];
     $('claims').innerHTML = rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${typeof v === 'string' && v.startsWith('<') ? v : esc(v ?? '-')}</dd></div>`).join('');
 
