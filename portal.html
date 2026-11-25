@@ -52,16 +52,16 @@ a.svc:focus-visible{outline:3px solid rgba(201,162,39,.5);outline-offset:2px}
 
 <nav class="navbar navbar-expand-lg navbar-dark doc-navbar">
   <div class="container-fluid px-3 px-lg-4">
-    <a class="navbar-brand d-flex align-items-center" href="portal.html"><img class="brand-logo" src="assets/logo-polri.png" alt="Logo Polri" onerror="this.remove();document.querySelectorAll('.brand-mark').forEach(e=>e.hidden=false)"><span class="brand-mark" hidden>POLRI</span><span class="brand-text">Portal Layanan Polri</span></a>
+    <a class="navbar-brand d-flex align-items-center" href="portal.html"><img class="brand-logo" src="assets/logo-polri.png" alt="Logo Polri" onerror="this.remove();document.querySelectorAll('.brand-mark').forEach(e=>e.hidden=false)"><span class="brand-mark" hidden>SKCK</span><span class="brand-text">Dokumentasi SKCK dan Izin Keramaian</span></a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topnav" aria-controls="topnav" aria-expanded="false" aria-label="Buka navigasi">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="topnav">
       <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a class="nav-link active" aria-current="page" href="portal.html">Beranda</a></li>
-        <li class="nav-item"><a class="nav-link" href="#layanan">Layanan</a></li>
-        <li class="nav-item"><a class="nav-link" href="data.html">Cek Pengajuan</a></li>
-        <li class="nav-item"><a class="nav-link" href="index.html">Dokumentasi API</a></li>
+        <li class="nav-item"><a class="nav-link active" aria-current="page" href="portal.html">Portal</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html">Dokumentasi</a></li>
+        <li class="nav-item"><a class="nav-link" href="data.html">Tampilan Data</a></li>
+        <li class="nav-item"><a class="nav-link" href="vc.html">Kredensial (VC)</a></li>
       </ul>
     </div>
   </div>
@@ -86,6 +86,7 @@ a.svc:focus-visible{outline:3px solid rgba(201,162,39,.5);outline-offset:2px}
     <div class="quick" aria-label="Pintasan">
       <a href="data.html">Cek status SKCK</a>
       <a href="data.html">Cek izin keramaian</a>
+      <a href="vc.html">Kredensial digital (VC)</a>
       <a href="index.html">Dokumentasi API</a>
     </div>
   </div>
@@ -131,6 +132,7 @@ a.svc:focus-visible{outline:3px solid rgba(201,162,39,.5);outline-offset:2px}
     lost: '<rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M9 8h6M9 12h6M9 16h3"/><path d="M16 15l3 3"/>',
     car: '<path d="M4 15l2-5h12l2 5v4H4z"/><circle cx="8" cy="17" r="1.3"/><circle cx="16" cy="17" r="1.3"/><path d="M7 10l1-3h8l1 3"/>',
     shield: '<path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/>',
+    wallet: '<rect x="3" y="6" width="18" height="13" rx="1.5"/><path d="M3 10h18M15 14h3"/><path d="M6 6l9-3 1 3"/>',
     code: '<path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13 6l-2 12"/>'
   };
   const SERVICES = [
@@ -143,6 +145,7 @@ a.svc:focus-visible{outline:3px solid rgba(201,162,39,.5);outline-offset:2px}
     { name: 'SP2HP', desc: 'Pantau perkembangan hasil penyidikan atas laporan Anda.', cat: 'Pelaporan', icon: 'search', keys: 'perkembangan penyidikan perkara' },
     { name: 'Panggilan Darurat', desc: 'Hubungi 110 untuk kejadian yang membutuhkan bantuan segera.', cat: 'Darurat', icon: 'alert', href: 'tel:110', live: true, keys: '110 darurat polisi', note: 'Telepon 110' },
     { name: 'Verifikasi Dokumen', desc: 'Pemeriksaan keabsahan SKCK oleh instansi dan perusahaan.', cat: 'Integrasi', icon: 'shield', href: 'data.html', live: true, keys: 'cek keaslian rekrutmen' },
+    { name: 'Kredensial Digital (VC)', desc: 'SKCK dan izin keramaian sebagai Verifiable Credential yang dapat diverifikasi.', cat: 'Integrasi', icon: 'wallet', href: 'vc.html', live: true, keys: 'vc verifiable credential dompet digital wallet' },
     { name: 'API Integrasi Mitra', desc: 'Dokumentasi integrasi untuk aplikasi mitra yang terdaftar.', cat: 'Integrasi', icon: 'code', href: 'index.html', live: true, keys: 'developer integrasi app id' }
   ];
   const CATS = ['Semua', ...new Set(SERVICES.map(s => s.cat))];

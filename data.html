@@ -14,7 +14,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark doc-navbar">
   <div class="container-fluid px-3 px-lg-4">
-    <a class="navbar-brand d-flex align-items-center" href="index.html"><img class="brand-logo" src="assets/logo-polri.png" alt="Logo Polri" onerror="this.remove();document.querySelectorAll('.brand-mark').forEach(e=>e.hidden=false)"><span class="brand-mark" hidden>SKCK</span><span class="brand-text">Dokumentasi SKCK dan Izin Keramaian</span></a>
+    <a class="navbar-brand d-flex align-items-center" href="portal.html"><img class="brand-logo" src="assets/logo-polri.png" alt="Logo Polri" onerror="this.remove();document.querySelectorAll('.brand-mark').forEach(e=>e.hidden=false)"><span class="brand-mark" hidden>SKCK</span><span class="brand-text">Dokumentasi SKCK dan Izin Keramaian</span></a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topnav" aria-controls="topnav" aria-expanded="false" aria-label="Buka navigasi">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -23,6 +23,7 @@
         <li class="nav-item"><a class="nav-link" href="portal.html">Portal</a></li>
         <li class="nav-item"><a class="nav-link" href="index.html">Dokumentasi</a></li>
         <li class="nav-item"><a class="nav-link active" aria-current="page" href="data.html">Tampilan Data</a></li>
+        <li class="nav-item"><a class="nav-link" href="vc.html">Kredensial (VC)</a></li>
       </ul>
     </div>
   </div>
@@ -321,7 +322,17 @@
     $('detail-title').textContent = type === 'skck' ? 'Detail Pengajuan SKCK' : 'Detail Pengajuan Izin Keramaian';
     $('detail-body').innerHTML = rows.map(([k, v]) => `<dt class="col-sm-5">${k}</dt><dd class="col-sm-7">${v}</dd>`).join('');
     const url = type === 'skck' ? docUrl(r.application_path) : '';
-    $('detail-foot').innerHTML = (url ? `<a class="btn btn-primary" href="${esc(url)}" target="_blank" rel="noopener">Buka Dokumen SKCK</a>` : '') + '<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>';
+    const vcId = (type === 'skck' ? 'urn:uuid:skck-' : 'urn:uuid:ik-') + r.id;
+    $('detail-foot').innerHTML = (url ? `<a class="btn btn-outline-primary" href="${esc(url)}" target="_blank" rel="noopener">Buka Dokumen SKCK</a>` : '')
+      + `<button type="button" class="btn btn-primary" id="btn-vc" data-vc="${esc(vcId)}">Lihat sebagai VC</button>`
+      + '<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>';
+    $('btn-vc').addEventListener('click', () => {
+      try {
+        sessionStorage.setItem('vc-source', JSON.stringify({ nik: state.nik, user: state.json.data.user, skck: state.json.data.skck || [], crowd_permit: state.json.data.crowd_permit || [] }));
+        sessionStorage.setItem('vc-select', vcId);
+      } catch (e) {}
+      location.href = 'vc.html';
+    });
     bootstrap.Modal.getOrCreateInstance($('detail-modal')).show();
   }
 

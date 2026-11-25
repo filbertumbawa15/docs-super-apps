@@ -3,6 +3,7 @@
 Dokumentasi API lookup pengajuan SKCK dan Izin Keramaian, bergaya Bootstrap Docs.
 
 - `portal.html` — portal layanan Polri (pola Super Apps), pintu masuk ke semua halaman
+- `vc.html` — tampilan Verifiable Credential (W3C VC 2.0) untuk SKCK dan Izin Keramaian, sisi issuer
 - `index.html` — dokumentasi endpoint `POST /api/v1/external/service-applications/lookup`
 - `data.html` — halaman untuk menampilkan data dari endpoint (tabel, badge status, detail, paginasi)
 - `assets/` — Bootstrap 5.3.3, CSS dan JS halaman
