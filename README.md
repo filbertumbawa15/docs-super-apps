@@ -58,6 +58,20 @@ Lihat `.env.example` untuk format ENV.
 Taruh file logo resmi di `assets/logo-polri.png` (disarankan PNG transparan, tinggi minimal 72 px), lalu commit.
 Jika file tidak ada, navbar menampilkan tanda teks "SKCK".
 
+## Database (PostgreSQL)
+
+Skema mengikuti atribut API lookup dan struktur VC: `pemohon`, `pengajuan_skck`,
+`pengajuan_izin_keramaian`, `verifiable_credential`, `vc_status_list`, `api_client`, `api_access_log`,
+fungsi `layanan.lookup(nik, services)` (bentuk sama dengan respons API) dan `layanan.verifikasi_klien(app_id, key)`.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/filbertumbawa15/docs-super-apps/main/deploy/db/install-postgres.sh -o /tmp/install-postgres.sh
+sudo bash /tmp/install-postgres.sh                 # tambahkan --with-sample untuk data contoh
+```
+
+Default hanya localhost; kredensial di `/etc/docs-super-apps/db.env`.
+Izinkan jaringan tertentu: `sudo ALLOW_CIDR=10.20.0.0/16 bash /tmp/install-postgres.sh`.
+
 ## Catatan
 
 - API hanya bisa diakses lewat **GlobalProtect**. Browser pengguna harus tersambung VPN saat menekan "Cari ke API".
