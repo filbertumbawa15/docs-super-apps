@@ -58,14 +58,14 @@ Lihat `.env.example` untuk format ENV.
 Taruh file logo resmi di `assets/logo-polri.png` (disarankan PNG transparan, tinggi minimal 72 px), lalu commit.
 Jika file tidak ada, navbar menampilkan tanda teks "SKCK".
 
-## API sendiri (tanpa database)
+## API gateway (di VM)
 
-`api/server.js` menyediakan `POST /api/v1/external/service-applications/lookup` dengan kontrak yang sama,
-sekaligus menyajikan portal, docs, data, dan VC. Tanpa database dan tanpa `npm install`.
+`api/server.js` menyediakan `POST /api/v1/external/service-applications/lookup` dengan kontrak yang sama
+untuk aplikasi mitra, lalu meneruskannya ke API sumber (admin-be). Server ini juga menyajikan portal,
+docs, data, dan VC. Tanpa database dan tanpa `npm install`.
 
-- Data pengajuan: `data/pengajuan.json` (dimuat ulang otomatis saat file diubah)
-- Klien API: `/etc/docs-super-apps/clients.json`, dikelola dengan `node api/create-client.js buat "Nama"`
-- Konfigurasi: `/etc/docs-super-apps/api.env` (PORT, BIND, DATA_FILE, CLIENTS_FILE)
+- Kredensial API sumber: `/etc/docs-super-apps/api.env` (`UPSTREAM_HOST`, `UPSTREAM_APP_ID`, `UPSTREAM_ACCESS_KEY`, `INSECURE_TLS`)
+- Klien mitra: `/etc/docs-super-apps/clients.json`, dikelola dengan `node api/create-client.js buat "Nama"`
 
 ## Database (PostgreSQL, opsional, tidak dipakai API saat ini)
 

@@ -1,13 +1,15 @@
 #!/usr/bin/env node
-// API Lookup Pengajuan SKCK & Izin Keramaian. Tanpa database dan tanpa dependensi:
-// data dibaca dari file JSON (DATA_FILE), klien API dari CLIENTS_FILE.
+// Gateway API Lookup Pengajuan SKCK & Izin Keramaian. Tanpa database dan tanpa dependensi.
+// Data diambil dari API sumber (UPSTREAM_HOST, mis. admin-be); klien mitra dari CLIENTS_FILE.
 // Kontrak sama dengan dokumentasi: POST /api/v1/external/service-applications/lookup
 // Sekaligus menyajikan halaman Portal, Dokumentasi, Tampilan Data, dan VC.
 //
 //   node api/server.js
 //
 // Konfigurasi (variabel lingkungan atau file ENV_FILE, default /etc/docs-super-apps/api.env):
-//   DATA_FILE=data/pengajuan.json                      data pengajuan (dimuat ulang saat berubah)
+//   UPSTREAM_HOST=https://host/admin-be               API sumber data (wajib)
+//   UPSTREAM_APP_ID=...  UPSTREAM_ACCESS_KEY=...       kredensial ke API sumber (wajib)
+//   INSECURE_TLS=true                                 terima sertifikat HTTPS internal / self-signed
 //   CLIENTS_FILE=/etc/docs-super-apps/clients.json     App-Id + hash Access-Key (dibuat create-client.js)
 //   PORT=5173  BIND=127.0.0.1
 //   UI_ENABLED=true     halaman web + jalur /proxy tanpa key (untuk tampilan internal)
@@ -15,6 +17,7 @@
 'use strict';
 
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
@@ -40,7 +43,16 @@ const ROOT = path.resolve(__dirname, '..');
 const LOOKUP_PATH = '/api/v1/external/service-applications/lookup';
 const SERVICES = ['skck', 'crowd_permit'];
 
-const DATA_FILE = path.resolve(ROOT, env.DATA_FILE || 'data/pengajuan.json');
+const UPSTREAM_HOST = String(env.UPSTREAM_HOST || '').replace(/\/+$/, '');
+const UPSTREAM_APP_ID = env.UPSTREAM_APP_ID || '';
+const UPSTREAM_ACCESS_KEY = env.UPSTREAM_ACCESS_KEY || '';
+const INSECURE_TLS = /^(1|true|yes)$/i.test(env.INSECURE_TLS || '');
+if (!/^https?:\/\//.test(UPSTREAM_HOST) || !UPSTREAM_APP_ID || !UPSTREAM_ACCESS_KEY) {
+  console.error(`[GAGAL] UPSTREAM_HOST, UPSTREAM_APP_ID, dan UPSTREAM_ACCESS_KEY wajib diisi (${ENV_FILE}).`);
+  process.exit(1);
+}
+const upstreamUrl = new URL(UPSTREAM_HOST);
+const upstreamClient = upstreamUrl.protocol === 'https:' ? https : http;
 const CLIENTS_FILE = path.resolve(env.CLIENTS_FILE || '/etc/docs-super-apps/clients.json');
 
 // --- Penyimpanan berbasis file (dimuat ulang otomatis saat file berubah) -------------
@@ -60,7 +72,6 @@ function jsonStore(file, fallback, validate) {
     error() { this.get(); return lastError; }
   };
 }
-const dataStore = jsonStore(DATA_FILE, { pemohon: [] }, v => { if (!Array.isArray(v.pemohon)) throw new Error('harus berisi array "pemohon"'); });
 const clientStore = jsonStore(CLIENTS_FILE, { clients: [] }, v => { if (!Array.isArray(v.clients)) throw new Error('harus berisi array "clients"'); });
 
 // --- Utilitas respons ----------------------------------------------------------------
@@ -121,24 +132,54 @@ function parseLookup(raw) {
   return { nik, services, page, perPage };
 }
 
-// --- Lookup -------------------------------------------------------------------------------
-const SKCK_VISIBLE = ['approved', 'completed', 'waiting_payment'];
-const byDateDesc = (a, b) => String(b.submitted_at).localeCompare(String(a.submitted_at));
+// --- Lookup ke API sumber ------------------------------------------------------------------
+function upstreamRequest(method, apiPath, body, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    const payload = body ? Buffer.from(JSON.stringify(body)) : null;
+    const req = upstreamClient.request({
+      protocol: upstreamUrl.protocol, hostname: upstreamUrl.hostname, port: upstreamUrl.port || undefined,
+      path: upstreamUrl.pathname.replace(/\/+$/, '') + apiPath, method,
+      headers: {
+        Accept: 'application/json',
+        ...(payload ? { 'Content-Type': 'application/json', 'Content-Length': payload.length, 'App-Id': UPSTREAM_APP_ID, 'Access-Key': UPSTREAM_ACCESS_KEY } : {})
+      },
+      rejectUnauthorized: !INSECURE_TLS, timeout: timeoutMs
+    }, r => {
+      const chunks = [];
+      r.on('data', c => chunks.push(c));
+      r.on('end', () => resolve({ status: r.statusCode, text: Buffer.concat(chunks).toString('utf8') }));
+    });
+    req.on('timeout', () => req.destroy(Object.assign(new Error('Waktu habis menghubungi API sumber'), { code: 'ETIMEDOUT' })));
+    req.on('error', reject);
+    if (payload) req.write(payload);
+    req.end();
+  });
+}
 
-function lookup({ nik, services, page, perPage }) {
-  const p = dataStore.get().pemohon.find(x => String(x.nik) === nik) || null;
-  const offset = (page - 1) * perPage;
-  const allSkck = p && services.includes('skck') ? (p.skck || []).filter(r => SKCK_VISIBLE.includes(r.status)).sort(byDateDesc) : [];
-  const allIk = p && services.includes('crowd_permit') ? (p.crowd_permit || []).slice().sort(byDateDesc) : [];
-  const pick = r => ({ id: r.id, registration_number: r.registration_number, status: r.status, submitted_at: r.submitted_at, purpose: r.purpose ?? null, print_location: r.print_location ?? null, classification: r.classification ?? null, application_path: r.application_path ?? null });
-  const pickIk = r => ({ id: r.id, registration_number: r.registration_number, status: r.status, submitted_at: r.submitted_at, activity_name: r.activity_name ?? null, activity_type_name: r.activity_type_name ?? null, requested_review_date: r.requested_review_date ?? null });
+function upstreamError(err) {
+  const c = err.code || '';
+  if (['ETIMEDOUT', 'ECONNREFUSED', 'EHOSTUNREACH', 'ENETUNREACH', 'ENOTFOUND', 'ECONNRESET'].includes(c)) return 'API sumber tidak dapat dijangkau dari server.';
+  if (/CERT|SELF_SIGNED|UNABLE_TO_VERIFY/.test(c)) return 'Sertifikat HTTPS API sumber ditolak. Set INSECURE_TLS=true jika memakai sertifikat internal.';
+  return 'Gagal menghubungi API sumber.';
+}
+
+class UpstreamFail extends Error { constructor(code, msg) { super(msg); this.httpCode = code; } }
+
+async function lookup({ nik, services, page, perPage }) {
+  const body = { nik, page, per_page: perPage };
+  if (services.length < SERVICES.length) body.services = services;
+  let r;
+  try { r = await upstreamRequest('POST', LOOKUP_PATH, body, 30000); }
+  catch (e) { log(`UPSTREAM gagal: ${e.code || ''} ${e.message}`); throw new UpstreamFail(502, upstreamError(e)); }
+  let j = null;
+  try { j = JSON.parse(r.text); } catch (e) { /* bukan JSON */ }
+  if (r.status === 401 || r.status === 403) { log(`UPSTREAM ${r.status}: kredensial ditolak`); throw new UpstreamFail(502, 'Kredensial server ke API sumber ditolak. Periksa UPSTREAM_APP_ID dan UPSTREAM_ACCESS_KEY.'); }
+  if (r.status === 422 && j && j.message) throw new UpstreamFail(422, j.message.description || j.message.title || 'Permintaan tidak valid.');
+  if (r.status < 200 || r.status >= 300 || !j || !j.data) { log(`UPSTREAM ${r.status}: respons tidak valid`); throw new UpstreamFail(502, `API sumber membalas HTTP ${r.status}.`); }
+  const d = j.data;
   return {
-    data: {
-      user: p ? { id: p.id, full_name: p.full_name } : null,
-      skck: allSkck.slice(offset, offset + perPage).map(pick),
-      crowd_permit: allIk.slice(offset, offset + perPage).map(pickIk)
-    },
-    info: { current_page: page, per_page: perPage, total: allSkck.length + allIk.length, last_page: Math.max(1, Math.ceil(Math.max(allSkck.length, allIk.length) / perPage)) }
+    data: { user: d.user ?? null, skck: services.includes('skck') ? d.skck || [] : [], crowd_permit: services.includes('crowd_permit') ? d.crowd_permit || [] : [] },
+    info: j.info || { current_page: page, per_page: perPage, total: (d.skck || []).length + (d.crowd_permit || []).length, last_page: 1 }
   };
 }
 
@@ -179,7 +220,14 @@ async function handleLookup(req, res, { trustedUi }) {
   const denied = q.services.filter(s => !allowed.includes(s));
   if (denied.length) { auditLog(appId, q.nik, q.services, 403, null, ip); return fail(res, 403, `App-Id ini tidak diizinkan mengakses layanan: ${denied.join(', ')}.`); }
 
-  const { data, info } = lookup(q);
+  let result;
+  try { result = await lookup(q); }
+  catch (e) {
+    if (!(e instanceof UpstreamFail)) throw e;
+    auditLog(appId, q.nik, q.services, e.httpCode, null, ip);
+    return fail(res, e.httpCode, e.message);
+  }
+  const { data, info } = result;
   const count = data.skck.length + data.crowd_permit.length;
   auditLog(appId, q.nik, q.services, 200, count, ip);
   log(`200 ${trustedUi ? 'ui' : appId} services=${q.services.join(',')} hasil=${count}`);
@@ -214,10 +262,13 @@ const server = http.createServer(async (req, res) => {
       return await handleLookup(req, res, { trustedUi: false });
     }
     if (p === '/health' || p === '/__health') {
-      const err = dataStore.error();
-      const n = dataStore.get().pemohon.length;
       const nc = clientStore.get().clients.length;
-      return sendJson(res, err ? 503 : 200, err ? { ok: false, data: 'gagal', error: err } : { ok: true, data: 'ok', pemohon: n, klien: nc });
+      try {
+        const r = await upstreamRequest('GET', '/', null, 8000);
+        return sendJson(res, 200, { ok: r.status < 500, upstream: r.status < 500 ? 'ok' : 'error', upstream_status: r.status, klien: nc });
+      } catch (e) {
+        return sendJson(res, 200, { ok: false, upstream: 'gagal', error: upstreamError(e), klien: nc });
+      }
     }
     if (!UI_ENABLED) return fail(res, 404, 'Endpoint tidak ditemukan.');
 
@@ -243,7 +294,7 @@ server.on('error', err => {
 });
 server.listen(PORT, BIND, () => {
   log(`API SKCK berjalan di http://${BIND}:${PORT}  (UI ${UI_ENABLED ? 'aktif' : 'mati'})`);
-  log(`Data  : ${DATA_FILE} (${dataStore.error() || dataStore.get().pemohon.length + ' pemohon'})`);
+  log(`Sumber: ${upstreamUrl.origin}${upstreamUrl.pathname} (TLS ${INSECURE_TLS ? 'tanpa verifikasi' : 'terverifikasi'})`);
   log(`Klien : ${CLIENTS_FILE} (${clientStore.error() || clientStore.get().clients.length + ' klien'})`);
 });
 const stop = () => { server.close(() => process.exit(0)); setTimeout(() => process.exit(0), 3000).unref(); };
