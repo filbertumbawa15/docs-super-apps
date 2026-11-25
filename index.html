@@ -43,6 +43,7 @@
     <a href="#objek-izin">Objek izin keramaian</a>
     <a href="#paginasi">Paginasi</a>
     <a href="#status">Daftar status</a>
+    <a href="#kredensial">Endpoint kredensial SKCK</a>
   </aside>
 
   <main class="doc-main" id="content">
@@ -260,6 +261,72 @@
 
 
 
+    <section id="kredensial">
+      <h2>Endpoint kredensial SKCK <a class="anchor" href="#kredensial">#</a></h2>
+      <div class="endpoint"><span class="method">POST</span><span>{{host}}/api/v1/external/skck/credential</span></div>
+      <p class="mt-3">Mengembalikan 17 atribut SKCK sesuai katalog <code>id.idctf.skck.1</code> (SD-JWT VC), untuk sistem penerbit VC. Data diambil dari API lookup, lalu atribut yang tidak tersedia di API dilengkapi dari file atribut per NIK. Header autentikasi sama dengan endpoint lookup.</p>
+      <div class="table-responsive">
+        <table class="table table-bordered param-table stack">
+          <thead class="table-light"><tr><th>Field body</th><th>Tipe</th><th>Wajib</th><th>Keterangan</th></tr></thead>
+          <tbody>
+            <tr><td><code>nik</code></td><td>string</td><td>Ya</td><td>NIK pemohon, 16 digit.</td></tr>
+            <tr><td><code>nomor_skck</code></td><td>string</td><td>Tidak</td><td>Pilih SKCK tertentu. Jika kosong, dipakai SKCK berstatus <code>completed</code> terbaru.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-bordered param-table stack">
+          <thead class="table-light"><tr><th>Atribut</th><th>Sumber</th></tr></thead>
+          <tbody>
+            <tr><td><code>nomor_skck</code>, <code>nama_lengkap</code>, <code>nik</code>, <code>untuk_keperluan</code>, <code>end_date</code></td><td>API lookup (<code>registration_number</code>, <code>user.full_name</code>, <code>purpose</code>, <code>estimated_expires_on</code>)</td></tr>
+            <tr><td><code>berlaku_dari_tanggal</code></td><td>API lookup, tanggal dari <code>submitted_at</code> (sementara, sampai tanggal terbit tersedia)</td></tr>
+            <tr><td><code>jenis_kelamin</code>, <code>kebangsaan</code>, <code>agama</code>, <code>tempat_dan_tanggal_lahir</code>, <code>tempat_tinggal_sekarang</code>, <code>pekerjaan</code>, <code>nomer_paspor</code>, <code>catatan_kepolisian</code>, <code>sejak_di_indonesia</code>, <code>sampai_dengan</code>, <code>foto</code></td><td>File atribut per NIK (<code>data/atribut-skck.json</code>)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="code-wrap"><pre>{
+  "status": true,
+  "code": 200,
+  "message": { "title": "Kredensial SKCK", "description": "Atribut kredensial lengkap" },
+  "data": {
+    "vct": "id.idctf.skck.1",
+    "attributes": {
+      "nomor_skck": "SKCK-2026-0000001",
+      "nama_lengkap": "AKUN UJI SATU",
+      "jenis_kelamin": "LAKI-LAKI",
+      "kebangsaan": "INDONESIA",
+      "agama": "ISLAM",
+      "tempat_dan_tanggal_lahir": "JAKARTA, 14-03-1998",
+      "tempat_tinggal_sekarang": "JL. MELATI NO. 12, RT 003/RW 005, ...",
+      "pekerjaan": "KARYAWAN SWASTA",
+      "nik": "0000000026112501",
+      "nomer_paspor": "-",
+      "catatan_kepolisian": "TIDAK MEMILIKI CATATAN ATAU KETERLIBATAN DALAM KEGIATAN KRIMINAL APAPUN",
+      "sejak_di_indonesia": "SEJAK LAHIR",
+      "sampai_dengan": "SEKARANG",
+      "untuk_keperluan": "STUDI DI LUAR NEGERI",
+      "berlaku_dari_tanggal": "2026-11-23",
+      "end_date": "2027-05-25",
+      "foto": "data:image/..."
+    },
+    "validity": { "status": "active", "expires_on": "2027-05-25", "days_remaining": 181 }
+  }
+}</pre></div>
+      <div class="table-responsive">
+        <table class="table table-bordered param-table stack">
+          <thead class="table-light"><tr><th>Kode</th><th>Arti</th></tr></thead>
+          <tbody>
+            <tr><td><code>401</code></td><td>App-Id atau Access-Key tidak ada atau tidak valid.</td></tr>
+            <tr><td><code>403</code></td><td>Klien tidak diizinkan mengakses layanan <code>skck</code>.</td></tr>
+            <tr><td><code>404</code></td><td>Tidak ada SKCK <code>completed</code> untuk NIK, atau atribut tambahan NIK belum ada.</td></tr>
+            <tr><td><code>409</code></td><td><code>nomor_skck</code> yang dipilih belum terbit.</td></tr>
+            <tr><td><code>422</code></td><td>Body tidak valid, mis. NIK bukan 16 digit.</td></tr>
+            <tr><td><code>502</code></td><td>API lookup tidak dapat dijangkau atau menolak kredensial server.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
     <hr class="my-5">
     <p class="small text-body-secondary">Disusun dari koleksi Postman "External Service Applications - SKCK dan Izin Keramaian". Data pada contoh adalah data uji.</p>
   </main>
@@ -271,6 +338,7 @@
     <a href="#endpoint">Endpoint</a>
     <a href="#respons">Respons</a>
     <a href="#status">Status</a>
+    <a href="#kredensial">Kredensial SKCK</a>
   </nav>
 </div>
 
