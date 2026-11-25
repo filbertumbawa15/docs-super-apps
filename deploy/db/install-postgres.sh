@@ -97,7 +97,8 @@ sed -i "/${MARK}/d" "$HBA"
 start_pg
 for _ in $(seq 1 20); do runuser -u postgres -- pg_isready -q -p "$DB_PORT" && break; sleep 0.5; done
 runuser -u postgres -- pg_isready -q -p "$DB_PORT" || fail "PostgreSQL tidak bisa dijalankan. Cek: journalctl -u postgresql"
-ok "PostgreSQL berjalan di port ${DB_PORT} (${ALLOW_CIDR:+localhost + $ALLOW_CIDR}${ALLOW_CIDR:-hanya localhost})"
+if [[ -n "$ALLOW_CIDR" ]]; then SCOPE="localhost + $ALLOW_CIDR"; else SCOPE="hanya localhost"; fi
+ok "PostgreSQL berjalan di port ${DB_PORT} (${SCOPE})"
 
 PSQL=(runuser -u postgres -- psql -X -q -v ON_ERROR_STOP=1 -p "$DB_PORT")
 
