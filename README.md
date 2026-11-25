@@ -2,6 +2,7 @@
 
 Dokumentasi API lookup pengajuan SKCK dan Izin Keramaian, bergaya Bootstrap Docs.
 
+- `portal.html` — portal layanan Polri (pola Super Apps), pintu masuk ke semua halaman
 - `index.html` — dokumentasi endpoint `POST /api/v1/external/service-applications/lookup`
 - `data.html` — halaman untuk menampilkan data dari endpoint (tabel, badge status, detail, paginasi)
 - `assets/` — Bootstrap 5.3.3, CSS dan JS halaman
@@ -23,7 +24,7 @@ bash deploy/local/start-local.sh --reconfig   # ganti host / key / port
 # Windows: klik dua kali deploy\local\start-local.bat
 ```
 
-Buka http://localhost:5173/data.html. Konfigurasi ada di file `.env` di root repo
+Buka http://localhost:5173/portal.html. Konfigurasi ada di file `.env` di root repo
 (format: `deploy/local/.env.example`).
 
 ## Instalasi di VPS
