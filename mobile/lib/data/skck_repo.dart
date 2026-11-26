@@ -6,8 +6,7 @@ import 'package:http/http.dart' as http;
 import 'sample.dart';
 
 /// Mengambil VC SKCK dari API lookup admin-be:
-///   POST {API_BASE}/api/v1/external/service-applications/lookup
-///   body: {"nik": NIK, "services": ["skck"]}
+///   GET {API_BASE}/api/v1/external/service-applications/lookup/{NIK}
 ///
 /// Konfigurasi lewat --dart-define (tidak disimpan di repo):
 ///   API_BASE    default http://172.27.169.128/admin-be
@@ -29,15 +28,14 @@ class SkckRepo {
     status.value = 'loading';
     try {
       if (nik.isEmpty) throw Exception('NIK belum diisi (--dart-define=NIK=...)');
-      final uri = Uri.parse('${apiBase.replaceAll(RegExp(r'/+$'), '')}/api/v1/external/service-applications/lookup');
+      final uri = Uri.parse('${apiBase.replaceAll(RegExp(r'/+$'), '')}/api/v1/external/service-applications/lookup/${Uri.encodeComponent(nik)}');
       final headers = <String, String>{
-        'Content-Type': 'application/json',
         'Accept': 'application/json',
         if (appId.isNotEmpty) 'App-Id': appId,
         if (accessKey.isNotEmpty) 'Access-Key': accessKey,
       };
       final res = await http
-          .post(uri, headers: headers, body: jsonEncode({'nik': nik, 'services': ['skck']}))
+          .get(uri, headers: headers)
           .timeout(const Duration(seconds: 20));
       dynamic body;
       try {
@@ -47,7 +45,7 @@ class SkckRepo {
       }
       if (res.statusCode != 200 || body is! Map || body['data'] is! Map) {
         final msg = body is Map && body['message'] is Map ? (body['message']['description'] ?? body['message']['title'] ?? '') : '';
-        debugPrint('[SkckRepo] ${res.statusCode} POST $uri -> ${res.body.length > 300 ? res.body.substring(0, 300) : res.body}');
+        debugPrint('[SkckRepo] ${res.statusCode} GET $uri -> ${res.body.length > 300 ? res.body.substring(0, 300) : res.body}');
         throw Exception('HTTP ${res.statusCode} ${uri.path}${msg.toString().isNotEmpty ? ' - $msg' : ''}');
       }
       final data = body['data'] as Map;

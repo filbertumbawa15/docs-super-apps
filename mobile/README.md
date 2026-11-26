@@ -27,8 +27,7 @@ karena repo publik. Tanpa foto, avatar menampilkan inisial nama.
 
 ## Data VC SKCK dari API
 
-Saat dashboard dibuka, aplikasi memanggil `POST {API_BASE}/api/v1/external/service-applications/lookup`
-dengan body `{"nik": NIK, "services": ["skck"]}`. NIK, App-Id, dan Access-Key **tidak** disimpan
+Saat dashboard dibuka, aplikasi memanggil `GET {API_BASE}/api/v1/external/service-applications/lookup/{NIK}`. NIK, App-Id, dan Access-Key **tidak** disimpan
 di repo (repo publik); berikan saat menjalankan:
 
 Cara termudah: salin `.env.example` menjadi `.env`, isi nilainya, lalu:
