@@ -74,7 +74,7 @@ jobs:
           const { chromium } = require('playwright');
           (async () => {
             const b = await chromium.launch();
-            for (const s of ['dashboard', 'layanan']) {
+            for (const s of ['dashboard', 'layanan', 'vc']) {
               const p = await b.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3 });
               await p.goto('http://127.0.0.1:8080/?start=' + s, { waitUntil: 'networkidle' });
               await p.waitForTimeout(8000);
@@ -85,7 +85,7 @@ jobs:
           })();
           JS
           node shot.js
-          for s in dashboard layanan; do
+          for s in dashboard layanan vc; do
             echo "-----BEGIN ${s} PNG-----"
             base64 -w 76 $s.png
             echo "-----END ${s} PNG-----"
@@ -96,3 +96,4 @@ jobs:
           path: |
             mobile/dashboard.png
             mobile/layanan.png
+            mobile/vc.png

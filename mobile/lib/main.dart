@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'data/sample.dart';
+import 'screens/credential_detail.dart';
 import 'screens/home_shell.dart';
 import 'screens/splash.dart';
 import 'theme.dart';
@@ -28,6 +30,7 @@ class SuperAppsDemo extends StatelessWidget {
       home: switch (_startScreen()) {
         'dashboard' => const HomeShell(),
         'layanan' => const HomeShell(openLayanan: true),
+        'vc' => CredentialDetailScreen(cred: credentials.first),
         _ => const SplashScreen(),
       },
     );
