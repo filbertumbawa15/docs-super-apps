@@ -31,6 +31,7 @@ jobs:
         run: |
           flutter create --platforms=android --org id.polri.demo --project-name super_apps_polri_demo .
           rm -rf test
+          cp lib/config/variables.example.dart lib/config/variables.dart
           sed -i 's/android:label="[^"]*"/android:label="Super Apps Polri (Demo)"/' android/app/src/main/AndroidManifest.xml
           # Izin internet + izinkan http:// (API admin-be memakai http)
           sed -i 's#<manifest xmlns:android="http://schemas.android.com/apk/res/android">#&\n    <uses-permission android:name="android.permission.INTERNET"/>#' android/app/src/main/AndroidManifest.xml
@@ -71,6 +72,7 @@ jobs:
         run: |
           flutter create --platforms=web --org id.polri.demo --project-name super_apps_polri_demo .
           rm -rf test
+          cp lib/config/variables.example.dart lib/config/variables.dart
           flutter pub get
           flutter build web --release
       - name: Tangkapan layar (390x844 @3x)

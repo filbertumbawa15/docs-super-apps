@@ -21,3 +21,6 @@ assets/profile/*
 
 # Konfigurasi lokal berisi kredensial
 .env
+
+# Konfigurasi berisi kredensial (salin dari variables.example.dart)
+lib/config/variables.dart

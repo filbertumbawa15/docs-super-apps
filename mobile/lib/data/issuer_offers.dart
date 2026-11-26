@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
+import '../config/variables.dart';
 import 'issuer_auth.dart';
 import 'skck_repo.dart';
 
@@ -12,12 +13,10 @@ import 'skck_repo.dart';
 ///   GET  {ISSUER_API}/api/v1/offers/{offer_id}/qr.png (Bearer access_token)
 ///   GET  {ISSUER_API}/api/v1/offers/{offer_id}        (status: used / expired / invalidated)
 ///
-/// Dari --dart-define / .env:
-///   ISSUER_API   default https://issuer.polri.go.id
-///   SUBJECT_REF  referensi warga; bila kosong memakai NIK
+/// Dari lib/config/variables.dart: issuerApi, subjectRef (kosong = memakai nik).
 class IssuerOffers {
-  static const apiBase = String.fromEnvironment('ISSUER_API', defaultValue: 'https://issuer.polri.go.id');
-  static const _subjectRefEnv = String.fromEnvironment('SUBJECT_REF');
+  static const apiBase = Variables.issuerApi;
+  static const _subjectRefEnv = Variables.subjectRef;
   static const credentialType = 'id.idctf.skck.1';
 
   static String get subjectRef => _subjectRefEnv.isNotEmpty ? _subjectRefEnv : SkckRepo.nik;
@@ -45,7 +44,7 @@ class IssuerOffers {
   }
 
   static Future<OfferInfo> create({int expiresIn = 600}) async {
-    if (subjectRef.isEmpty) throw Exception('SUBJECT_REF / NIK belum diisi di .env');
+    if (subjectRef.isEmpty) throw Exception('subjectRef / nik belum diisi di lib/config/variables.dart');
     final res = await _authed((t) => http.post(
           Uri.parse('$_base/api/v1/offers'),
           headers: {'Authorization': 'Bearer $t', 'Content-Type': 'application/json', 'Accept': 'application/json'},

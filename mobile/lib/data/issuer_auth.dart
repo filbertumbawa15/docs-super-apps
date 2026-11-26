@@ -3,19 +3,20 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
+import '../config/variables.dart';
+
 /// Token Issuance API (OAuth 2.0 client_credentials).
 ///   POST {ISSUER_TOKEN_URL}
 ///   Content-Type: application/x-www-form-urlencoded
 ///   grant_type=client_credentials&client_id=...&client_secret=...
 /// Jawaban: {"access_token": "...", "token_type": "Bearer", "expires_in": 900}
 ///
-/// Nilai dari --dart-define / .env (tidak disimpan di repo):
-///   ISSUER_TOKEN_URL  default https://issuer.polri.go.id/api/v1/token
-///   CLIENT_ID, CLIENT_SECRET
+/// Nilai dari lib/config/variables.dart (tidak disimpan di repo):
+///   issuerTokenUrl, clientId, clientSecret
 class IssuerAuth {
-  static const tokenUrl = String.fromEnvironment('ISSUER_TOKEN_URL', defaultValue: 'https://issuer.polri.go.id/api/v1/token');
-  static const clientId = String.fromEnvironment('CLIENT_ID');
-  static const clientSecret = String.fromEnvironment('CLIENT_SECRET');
+  static const tokenUrl = Variables.issuerTokenUrl;
+  static const clientId = Variables.clientId;
+  static const clientSecret = Variables.clientSecret;
 
   static String? accessToken;
   static DateTime? expiresAt;
@@ -33,7 +34,7 @@ class IssuerAuth {
     status.value = 'loading';
     try {
       if (clientId.isEmpty || clientSecret.isEmpty) {
-        throw Exception('CLIENT_ID / CLIENT_SECRET belum diisi di .env');
+        throw Exception('clientId / clientSecret belum diisi di lib/config/variables.dart');
       }
       final res = await http
           .post(

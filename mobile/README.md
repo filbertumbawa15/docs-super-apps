@@ -25,35 +25,36 @@ Folder `android/` sengaja tidak di-commit; dibuat oleh `flutter create`.
 Taruh foto di `assets/profile/foto.jpg` sebelum `flutter run`. Folder ini sengaja tidak di-commit
 karena repo publik. Tanpa foto, avatar menampilkan inisial nama.
 
-## Data VC SKCK dari API
+## Konfigurasi: `lib/config/variables.dart`
 
-Saat dashboard dibuka, aplikasi memanggil `GET {API_BASE}/api/v1/external/service-applications/lookup/{NIK}`. NIK, App-Id, dan Access-Key **tidak** disimpan
-di repo (repo publik); berikan saat menjalankan:
-
-Cara termudah: salin `.env.example` menjadi `.env`, isi nilainya, lalu:
+Semua alamat API dan kredensial ada di `lib/config/variables.dart`. File ini **tidak** ikut
+ter-commit (repo publik). Buat dari contoh lalu isi nilainya:
 
 ```powershell
-flutter run --dart-define-from-file=.env
+Copy-Item lib\config\variables.example.dart lib\config\variables.dart
+flutter run
 ```
 
-Di VS Code, konfigurasi "Super Apps Polri (Demo) + .env" (F5) sudah memakai file ini.
-Bisa juga satu per satu: `--dart-define=NIK=... --dart-define=APP_ID=... --dart-define=ACCESS_KEY=...`.
+| Variabel | Untuk |
+|---|---|
+| `apiBase`, `appId`, `accessKey` | `GET {apiBase}/api/v1/external/service-applications/lookup/{nik}` |
+| `nik` | NIK pemohon yang SKCK-nya ditampilkan |
+| `issuerApi`, `issuerTokenUrl`, `clientId`, `clientSecret` | token Issuance API (`client_credentials`) |
+| `subjectRef` | `subject_ref` pada `POST /api/v1/offers` (kosong = `nik`) |
 
 - HP harus bisa menjangkau host API (GlobalProtect aktif di HP).
 - `android/app/src/main/AndroidManifest.xml` perlu izin internet dan `http://`:
-  tambahkan `<uses-permission android:name="android.permission.INTERNET"/>` di dalam `<manifest>`,
+  `<uses-permission android:name="android.permission.INTERNET"/>` di dalam `<manifest>`,
   dan `android:usesCleartextTraffic="true"` pada tag `<application>`.
 - Bila API gagal dijangkau, aplikasi menampilkan data contoh dengan keterangan di layar.
-- Atribut yang tidak ada di API (agama, alamat, dll.) tetap data contoh, ditandai "contoh".
 
 ## Logo
 Satu path untuk semua logo di aplikasi: `assets/logo/polri.png` (splash, kartu VC, poster).
 Ikon aplikasi dibuat dari `assets/logo/app_icon.png` dan `app_icon_foreground.png`.
 
 ## Token Issuance API
-Saat aplikasi dibuka, aplikasi meminta token: `POST {ISSUER_TOKEN_URL}` (form-urlencoded,
-`grant_type=client_credentials`, `client_id`, `client_secret` dari `.env`) dan menyimpan
-`access_token` (berlaku `expires_in` detik). Status token terlihat di Profil → Token Issuer.
+Saat aplikasi dibuka, aplikasi meminta token (`POST {issuerTokenUrl}`, form-urlencoded,
+`grant_type=client_credentials`) dan menyimpan `access_token`. Status: Profil → Token Issuer.
 
 ## QR VC SKCK dari Issuer
 Tombol "Bagikan untuk verifikasi" membuat penawaran dan menampilkan QR dari Issuance API:

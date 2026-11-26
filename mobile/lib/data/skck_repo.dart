@@ -3,21 +3,19 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
+import '../config/variables.dart';
 import 'sample.dart';
 
 /// Mengambil VC SKCK dari API lookup admin-be:
 ///   GET {API_BASE}/api/v1/external/service-applications/lookup/{NIK}
 ///
-/// Konfigurasi lewat --dart-define (tidak disimpan di repo):
-///   API_BASE    default http://172.27.169.128/admin-be
-///   APP_ID      header App-Id      (kosongkan bila memakai gateway /proxy)
-///   ACCESS_KEY  header Access-Key  (kosongkan bila memakai gateway /proxy)
-///   NIK         NIK pemohon (wajib; tidak disimpan di repo karena data pribadi)
+/// Konfigurasi di lib/config/variables.dart (tidak disimpan di repo):
+///   apiBase, appId, accessKey (kosongkan keduanya bila memakai gateway /proxy), nik
 class SkckRepo {
-  static const apiBase = String.fromEnvironment('API_BASE', defaultValue: 'http://172.27.169.128/admin-be');
-  static const appId = String.fromEnvironment('APP_ID');
-  static const accessKey = String.fromEnvironment('ACCESS_KEY');
-  static const nik = String.fromEnvironment('NIK');
+  static const apiBase = Variables.apiBase;
+  static const appId = Variables.appId;
+  static const accessKey = Variables.accessKey;
+  static const nik = Variables.nik;
 
   /// idle | loading | api | fallback
   static final status = ValueNotifier<String>('idle');
@@ -27,7 +25,7 @@ class SkckRepo {
     if (status.value == 'loading') return;
     status.value = 'loading';
     try {
-      if (nik.isEmpty) throw Exception('NIK belum diisi (--dart-define=NIK=...)');
+      if (nik.isEmpty) throw Exception('nik belum diisi di lib/config/variables.dart');
       final uri = Uri.parse('${apiBase.replaceAll(RegExp(r'/+$'), '')}/api/v1/external/service-applications/lookup/${Uri.encodeComponent(nik)}');
       final headers = <String, String>{
         'Accept': 'application/json',
