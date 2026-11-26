@@ -41,15 +41,40 @@ class SkckRepo {
       } catch (_) {
         body = null;
       }
-      if (res.statusCode != 200 || body is! Map || body['data'] is! Map) {
+      // Selalu catat respons agar mudah dicek di terminal flutter run.
+      debugPrint('[SkckRepo] ${res.statusCode} GET $uri -> ${res.body.length > 1500 ? '${res.body.substring(0, 1500)}...' : res.body}');
+      if (res.statusCode < 200 || res.statusCode >= 300) {
         final msg = body is Map && body['message'] is Map ? (body['message']['description'] ?? body['message']['title'] ?? '') : '';
-        debugPrint('[SkckRepo] ${res.statusCode} GET $uri -> ${res.body.length > 300 ? res.body.substring(0, 300) : res.body}');
         throw Exception('HTTP ${res.statusCode} ${uri.path}${msg.toString().isNotEmpty ? ' - $msg' : ''}');
       }
-      final data = body['data'] as Map;
-      final user = data['user'] is Map ? data['user'] as Map : null;
-      final rows = (data['skck'] is List ? data['skck'] as List : const []).whereType<Map>().toList();
-      if (rows.isEmpty) throw Exception('Tidak ada SKCK untuk NIK ini');
+      if (body == null) throw Exception('HTTP ${res.statusCode}, tetapi isi respons bukan JSON');
+
+      // Bentuk respons yang diterima:
+      //   {data: {user, skck: [..] | {..}}}  |  {data: [..]}  |  {data: {..baris skck..}}  |  {user, skck}
+      final dynamic data = body is Map && body.containsKey('data') ? body['data'] : body;
+      Map? user;
+      dynamic skckRaw;
+      if (data is List) {
+        skckRaw = data;
+      } else if (data is Map) {
+        user = data['user'] is Map ? data['user'] as Map : null;
+        skckRaw = data['skck'] ?? data['skck_applications'] ?? data['applications'] ?? data['items'];
+        if (skckRaw == null && data.containsKey('registration_number')) skckRaw = data;
+      } else {
+        throw Exception('HTTP ${res.statusCode}, field "data" kosong atau tidak dikenali');
+      }
+      final rows = <Map>[
+        if (skckRaw is List) ...skckRaw.whereType<Map>(),
+        if (skckRaw is Map) skckRaw,
+      ];
+      if (rows.isEmpty) {
+        final keys = data is Map ? data.keys.join(', ') : 'list kosong';
+        throw Exception(user != null
+            ? 'Tidak ada SKCK untuk NIK ini (pengguna: ${user['full_name'] ?? '-'})'
+            : 'Data SKCK tidak ditemukan di respons (isi data: $keys)');
+      }
+      // Nama pemegang: dari data.user, atau dari baris SKCK bila tersedia.
+      user ??= rows.first['user'] is Map ? rows.first['user'] as Map : {'full_name': rows.first['full_name'] ?? rows.first['name'] ?? ''};
       // Utamakan SKCK yang sudah terbit (completed), terbaru lebih dulu.
       rows.sort((a, b) {
         final ca = a['status'] == 'completed' ? 0 : 1, cb = b['status'] == 'completed' ? 0 : 1;
@@ -62,7 +87,8 @@ class SkckRepo {
         ..insertAll(0, fromApi);
       message = 'Data dari API (NIK ${_mask(nik)})';
       status.value = 'api';
-    } catch (e) {
+    } catch (e, st) {
+      debugPrint('[SkckRepo] gagal: $e\n$st');
       message = 'Gagal memuat dari API: ${e.toString().replaceFirst('Exception: ', '')}. Menampilkan data contoh.';
       status.value = 'fallback';
     }
