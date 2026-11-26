@@ -30,10 +30,14 @@ Saat dashboard dibuka, aplikasi memanggil `POST {API_BASE}/api/v1/external/servi
 dengan body `{"nik": NIK, "services": ["skck"]}`. NIK, App-Id, dan Access-Key **tidak** disimpan
 di repo (repo publik); berikan saat menjalankan:
 
+Cara termudah: salin `.env.example` menjadi `.env`, isi nilainya, lalu:
+
 ```powershell
-flutter run --dart-define=NIK=<nik-uji> --dart-define=APP_ID=<app-id> --dart-define=ACCESS_KEY=<access-key>
-# opsional: --dart-define=API_BASE=http://<host>/admin-be
+flutter run --dart-define-from-file=.env
 ```
+
+Di VS Code, konfigurasi "Super Apps Polri (Demo) + .env" (F5) sudah memakai file ini.
+Bisa juga satu per satu: `--dart-define=NIK=... --dart-define=APP_ID=... --dart-define=ACCESS_KEY=...`.
 
 - HP harus bisa menjangkau host API (GlobalProtect aktif di HP).
 - `android/app/src/main/AndroidManifest.xml` perlu izin internet dan `http://`:
