@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'dashboard.dart';
 import 'profile.dart';
-import 'services.dart';
-import 'wallet.dart';
+import 'riwayat.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
@@ -13,30 +12,28 @@ class HomeShell extends StatefulWidget {
 }
 
 class _HomeShellState extends State<HomeShell> {
-  int _index = 0;
+  int _index = 0; // 0 Beranda, 1 Berita, 2 Riwayat, 3 Profil
 
   void _go(int i) => setState(() => _index = i);
 
   @override
   Widget build(BuildContext context) {
     final pages = [
-      DashboardScreen(onOpenWallet: () => _go(1), onOpenServices: () => _go(2)),
-      const WalletScreen(),
-      const ServicesScreen(),
+      DashboardScreen(onOpenBerita: () => _go(1), onOpenRiwayat: () => _go(2)),
+      const BeritaScreen(),
+      const RiwayatScreen(),
       const ProfileScreen(),
     ];
     return Scaffold(
+      backgroundColor: DashColors.bg,
+      extendBody: true,
       body: IndexedStack(index: _index, children: pages),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
-        onDestinationSelected: _go,
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Beranda'),
-          NavigationDestination(
-              icon: Icon(Icons.account_balance_wallet_outlined), selectedIcon: Icon(Icons.account_balance_wallet), label: 'Dompet'),
-          NavigationDestination(icon: Icon(Icons.apps_outlined), selectedIcon: Icon(Icons.apps), label: 'Layanan'),
-          NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Profil'),
-        ],
+      bottomNavigationBar: SuperNavBar(
+        index: _index,
+        onSelect: _go,
+        onDial: () => ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Demo: panggilan ke 110 tidak dilakukan.')),
+        ),
       ),
     );
   }

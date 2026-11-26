@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'screens/home_shell.dart';
 import 'screens/splash.dart';
 import 'theme.dart';
 
@@ -22,7 +23,8 @@ class SuperAppsDemo extends StatelessWidget {
       title: 'Super Apps Polri (Demo)',
       debugShowCheckedModeBanner: false,
       theme: buildTheme(),
-      home: const SplashScreen(),
+      // --dart-define=START=dashboard langsung membuka dashboard (dipakai untuk pratinjau otomatis).
+      home: const String.fromEnvironment('START') == 'dashboard' ? const HomeShell() : const SplashScreen(),
     );
   }
 }
