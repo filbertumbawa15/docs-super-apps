@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../data/issuer_auth.dart';
 import 'dashboard.dart' show DashColors, poppins;
 import 'home_shell.dart';
 
@@ -31,6 +32,12 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final _controller = PageController();
   int _page = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    IssuerAuth.fetch(); // pakai token yang ada bila masih berlaku
+  }
 
   @override
   void dispose() {

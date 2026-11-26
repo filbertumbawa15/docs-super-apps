@@ -39,10 +39,16 @@ class SkckRepo {
       final res = await http
           .post(uri, headers: headers, body: jsonEncode({'nik': nik, 'services': ['skck']}))
           .timeout(const Duration(seconds: 20));
-      final body = jsonDecode(res.body);
+      dynamic body;
+      try {
+        body = jsonDecode(res.body);
+      } catch (_) {
+        body = null;
+      }
       if (res.statusCode != 200 || body is! Map || body['data'] is! Map) {
-        final msg = body is Map && body['message'] is Map ? (body['message']['description'] ?? '') : '';
-        throw Exception('HTTP ${res.statusCode} $msg'.trim());
+        final msg = body is Map && body['message'] is Map ? (body['message']['description'] ?? body['message']['title'] ?? '') : '';
+        debugPrint('[SkckRepo] ${res.statusCode} POST $uri -> ${res.body.length > 300 ? res.body.substring(0, 300) : res.body}');
+        throw Exception('HTTP ${res.statusCode} ${uri.path}${msg.toString().isNotEmpty ? ' - $msg' : ''}');
       }
       final data = body['data'] as Map;
       final user = data['user'] is Map ? data['user'] as Map : null;

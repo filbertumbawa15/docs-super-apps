@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../data/issuer_auth.dart';
 import '../data/sample.dart';
 import '../theme.dart';
 import 'splash.dart';
@@ -55,6 +56,33 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Card(
+            child: ValueListenableBuilder<String>(
+              valueListenable: IssuerAuth.status,
+              builder: (context, st, _) => ListTile(
+                leading: Icon(
+                  st == 'ok' ? Icons.vpn_key : (st == 'error' ? Icons.key_off : Icons.vpn_key_outlined),
+                  color: st == 'ok' ? AppColors.green : (st == 'error' ? AppColors.red : AppColors.brown),
+                ),
+                title: const Text('Token Issuer'),
+                subtitle: Text(
+                  switch (st) {
+                    'ok' => '${IssuerAuth.masked()} · ${IssuerAuth.message}',
+                    'error' => IssuerAuth.message,
+                    'loading' => 'Meminta token...',
+                    _ => 'Belum diminta',
+                  },
+                  style: const TextStyle(fontSize: 12.5),
+                ),
+                trailing: IconButton(
+                  tooltip: 'Minta ulang',
+                  icon: const Icon(Icons.refresh, color: AppColors.brown),
+                  onPressed: () => IssuerAuth.fetch(force: true),
+                ),
               ),
             ),
           ),

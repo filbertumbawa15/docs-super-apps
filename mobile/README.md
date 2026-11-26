@@ -50,3 +50,8 @@ Bisa juga satu per satu: `--dart-define=NIK=... --dart-define=APP_ID=... --dart-
 ## Logo
 Satu path untuk semua logo di aplikasi: `assets/logo/polri.png` (splash, kartu VC, poster).
 Ikon aplikasi dibuat dari `assets/logo/app_icon.png` dan `app_icon_foreground.png`.
+
+## Token Issuance API
+Saat aplikasi dibuka, aplikasi meminta token: `POST {ISSUER_TOKEN_URL}` (form-urlencoded,
+`grant_type=client_credentials`, `client_id`, `client_secret` dari `.env`) dan menyimpan
+`access_token` (berlaku `expires_in` detik). Status token terlihat di Profil → Token Issuer.

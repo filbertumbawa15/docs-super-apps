@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../data/issuer_auth.dart';
 import '../widgets/common.dart';
 import 'dashboard.dart' show DashColors, poppins;
 import 'home_shell.dart';
@@ -26,7 +27,10 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
-    if (!widget.hold) _next();
+    if (!widget.hold) {
+      IssuerAuth.fetch(); // POST /api/v1/token -> access_token
+      _next();
+    }
   }
 
   @override

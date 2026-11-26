@@ -107,39 +107,6 @@ class CredentialDetailScreen extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 22),
-          Row(
-            children: [
-              Text('Atribut', style: poppins(16, weight: FontWeight.w700)),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
-                decoration: BoxDecoration(color: DashColors.goldPill, borderRadius: BorderRadius.circular(10)),
-                child: Text('${cred.attributes.length}', style: poppins(11.5, weight: FontWeight.w700, color: const Color(0xFF1B1B1B))),
-              ),
-              const Spacer(),
-              const DarkMinTag('open'),
-              const SizedBox(width: 4),
-              const DarkMinTag('normal'),
-              const SizedBox(width: 4),
-              const DarkMinTag('restricted'),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text('open selalu terlihat. normal dan restricted hanya dibagikan bila Anda memilihnya.',
-              style: poppins(11.5, color: DashColors.navGrey, height: 1.4)),
-          const SizedBox(height: 12),
-          GoldPanel(
-            padding: EdgeInsets.zero,
-            child: Column(
-              children: [
-                for (var i = 0; i < cred.attributes.length; i++) ...[
-                  if (i > 0) const Divider(height: 1, thickness: 1, color: Color(0xFF22273A)),
-                  _AttrRow(attr: cred.attributes[i]),
-                ],
-              ],
-            ),
-          ),
         ],
       ),
     );
@@ -159,47 +126,6 @@ class CredentialDetailScreen extends StatelessWidget {
                 style: mono
                     ? poppins(12.5, weight: FontWeight.w500, color: DashColors.goldSoft)
                     : poppins(13, weight: FontWeight.w500, color: good ? const Color(0xFF3DDC5C) : Colors.white)),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _AttrRow extends StatelessWidget {
-  final Attr attr;
-  const _AttrRow({required this.attr});
-
-  @override
-  Widget build(BuildContext context) {
-    final value = attr.name == 'nik' ? citizen.maskedNik : attr.value;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(attr.label, style: poppins(11.5, color: DashColors.navGrey)),
-                const SizedBox(height: 3),
-                if (attr.name == 'foto')
-                  const HolderPhoto(width: 60, height: 78)
-                else
-                  Text(value, style: poppins(13.5, weight: FontWeight.w500, height: 1.35)),
-              ],
-            ),
-          ),
-          const SizedBox(width: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              DarkMinTag(attr.minimization),
-              const SizedBox(height: 4),
-              Text(attr.source == 'api' ? 'API' : 'contoh',
-                  style: poppins(9.5, weight: FontWeight.w600, color: attr.source == 'api' ? const Color(0xFF3DDC5C) : DashColors.navGrey)),
-            ],
           ),
         ],
       ),
