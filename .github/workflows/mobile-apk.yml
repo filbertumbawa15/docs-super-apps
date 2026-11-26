@@ -58,13 +58,13 @@ jobs:
         with:
           channel: stable
           cache: true
-      - name: Build web (langsung ke dashboard)
+      - name: Build web
         run: |
           flutter create --platforms=web --org id.polri.demo --project-name super_apps_polri_demo .
           rm -rf test
           flutter pub get
-          flutter build web --release --dart-define=START=dashboard
-      - name: Tangkapan layar dashboard (390x844 @3x)
+          flutter build web --release
+      - name: Tangkapan layar (390x844 @3x)
         run: |
           (cd build/web && python3 -m http.server 8080 >/dev/null 2>&1 &)
           npm init -y >/dev/null
@@ -74,18 +74,25 @@ jobs:
           const { chromium } = require('playwright');
           (async () => {
             const b = await chromium.launch();
-            const p = await b.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3 });
-            await p.goto('http://127.0.0.1:8080/', { waitUntil: 'networkidle' });
-            await p.waitForTimeout(8000);
-            await p.screenshot({ path: 'dashboard.png' });
+            for (const s of ['dashboard', 'layanan']) {
+              const p = await b.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3 });
+              await p.goto('http://127.0.0.1:8080/?start=' + s, { waitUntil: 'networkidle' });
+              await p.waitForTimeout(8000);
+              await p.screenshot({ path: s + '.png' });
+              await p.close();
+            }
             await b.close();
           })();
           JS
           node shot.js
-          echo "-----BEGIN DASHBOARD PNG-----"
-          base64 -w 76 dashboard.png
-          echo "-----END DASHBOARD PNG-----"
+          for s in dashboard layanan; do
+            echo "-----BEGIN ${s} PNG-----"
+            base64 -w 76 $s.png
+            echo "-----END ${s} PNG-----"
+          done
       - uses: actions/upload-artifact@v4
         with:
           name: dashboard-preview
-          path: mobile/dashboard.png
+          path: |
+            mobile/dashboard.png
+            mobile/layanan.png

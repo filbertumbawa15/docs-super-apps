@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -23,8 +24,19 @@ class SuperAppsDemo extends StatelessWidget {
       title: 'Super Apps Polri (Demo)',
       debugShowCheckedModeBanner: false,
       theme: buildTheme(),
-      // --dart-define=START=dashboard langsung membuka dashboard (dipakai untuk pratinjau otomatis).
-      home: const String.fromEnvironment('START') == 'dashboard' ? const HomeShell() : const SplashScreen(),
+      // Pratinjau otomatis: --dart-define=START=... atau, di web, ?start=dashboard / ?start=layanan.
+      home: switch (_startScreen()) {
+        'dashboard' => const HomeShell(),
+        'layanan' => const HomeShell(openLayanan: true),
+        _ => const SplashScreen(),
+      },
     );
   }
+}
+
+String _startScreen() {
+  const fromDefine = String.fromEnvironment('START');
+  if (fromDefine.isNotEmpty) return fromDefine;
+  if (kIsWeb) return Uri.base.queryParameters['start'] ?? '';
+  return '';
 }

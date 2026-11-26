@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../widgets/common.dart';
-import 'services.dart';
+import 'layanan_sheet.dart';
 import 'wallet.dart';
 
 /// Warna dashboard, diukur dari tangkapan layar Super Apps.
@@ -58,9 +58,9 @@ class DashboardScreen extends StatelessWidget {
               child: Column(
                 children: [
                   _ExploreCard(
-                    onSearch: () => _push(context, const ServicesScreen()),
+                    onSearch: () => showLayananSheet(context),
                     onSkck: () => _push(context, const WalletScreen()),
-                    onMore: () => _push(context, const ServicesScreen()),
+                    onMore: () => showLayananSheet(context),
                   ),
                   const SizedBox(height: 17),
                   _HistoryCard(onOpen: onOpenRiwayat),
