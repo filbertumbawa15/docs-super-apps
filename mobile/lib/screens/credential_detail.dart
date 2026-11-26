@@ -120,7 +120,12 @@ class _AttrTile extends StatelessWidget {
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(color: AppColors.border),
                     ),
-                    child: const Icon(Icons.person, size: 44, color: AppColors.muted),
+                    clipBehavior: Clip.antiAlias,
+                    child: Image.asset(
+                      profilePhoto,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => const Icon(Icons.person, size: 44, color: AppColors.muted),
+                    ),
                   )
                 else
                   Text(value,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../data/sample.dart';
 import '../widgets/common.dart';
 import 'layanan_sheet.dart';
 import 'wallet.dart';
@@ -51,7 +52,7 @@ class DashboardScreen extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.only(bottom: 120),
           children: [
-            const _Header(name: 'Guest'),
+            _Header(name: citizen.name),
             const SizedBox(height: 17),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -88,7 +89,7 @@ class _Header extends StatelessWidget {
     return ClipRRect(
       borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(42)),
       child: Container(
-        height: top + 55,
+        height: top + 82,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [DashColors.headerA, DashColors.headerA, DashColors.headerB],
@@ -100,13 +101,13 @@ class _Header extends StatelessWidget {
         child: Stack(
           children: [
             Positioned.fill(child: CustomPaint(painter: _CircuitPainter(DashColors.circuit.withAlpha(150)))),
-            Positioned(right: 168, top: top - 16, child: _ghostIcon(Icons.chat_bubble_outline, 46, -0.08)),
-            Positioned(right: 128, top: top + 10, child: _ghostIcon(Icons.credit_card, 64, 0)),
-            Positioned(right: 104, top: -20, child: _ghostIcon(Icons.phone_in_talk_outlined, 56, 0.1)),
-            Positioned(right: 18, top: top - 26, child: _ghostIcon(Icons.language, 60, 0.05)),
+            Positioned(right: 168, top: top + 2, child: _ghostIcon(Icons.chat_bubble_outline, 46, -0.08)),
+            Positioned(right: 128, top: top + 30, child: _ghostIcon(Icons.credit_card, 64, 0)),
+            Positioned(right: 104, top: top - 28, child: _ghostIcon(Icons.phone_in_talk_outlined, 56, 0.1)),
+            Positioned(right: 18, top: top - 6, child: _ghostIcon(Icons.language, 60, 0.05)),
             Positioned(
               left: 25,
-              top: (top - 22).clamp(8.0, 200.0),
+              top: top + 14,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -119,9 +120,13 @@ class _Header extends StatelessWidget {
                       child: Container(
                         color: DashColors.gold,
                         child: Image.asset(
-                          'assets/logo/polri.png',
-                          fit: BoxFit.contain,
-                          errorBuilder: (_, __, ___) => const Center(child: Seal(size: 40, color: Color(0xFF8A6A08))),
+                          profilePhoto,
+                          fit: BoxFit.cover,
+                          alignment: const Alignment(0, -0.6),
+                          errorBuilder: (_, __, ___) => Center(
+                            child: Text(citizen.initials,
+                                style: poppins(20, weight: FontWeight.w700, color: const Color(0xFF3B2412))),
+                          ),
                         ),
                       ),
                     ),

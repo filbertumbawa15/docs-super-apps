@@ -3,7 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/sample.dart';
 import '../theme.dart';
-import 'login.dart';
 import 'splash.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -24,8 +23,17 @@ class ProfileScreen extends StatelessWidget {
                   CircleAvatar(
                     radius: 28,
                     backgroundColor: AppColors.cream,
-                    child: Text(citizen.initials,
-                        style: const TextStyle(color: AppColors.brown, fontWeight: FontWeight.w700, fontSize: 18)),
+                    child: ClipOval(
+                      child: Image.asset(
+                        profilePhoto,
+                        width: 56,
+                        height: 56,
+                        fit: BoxFit.cover,
+                        alignment: const Alignment(0, -0.6),
+                        errorBuilder: (_, __, ___) => Text(citizen.initials,
+                            style: const TextStyle(color: AppColors.brown, fontWeight: FontWeight.w700, fontSize: 18)),
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -80,15 +88,6 @@ class ProfileScreen extends StatelessWidget {
                       (_) => false,
                     );
                   },
-                ),
-                const Divider(),
-                ListTile(
-                  leading: const Icon(Icons.logout, color: AppColors.red),
-                  title: const Text('Keluar', style: TextStyle(color: AppColors.red)),
-                  onTap: () => Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute<void>(builder: (_) => const LoginScreen()),
-                    (_) => false,
-                  ),
                 ),
               ],
             ),

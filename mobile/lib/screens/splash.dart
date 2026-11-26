@@ -3,11 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../theme.dart';
 import '../widgets/common.dart';
-import 'login.dart';
+import 'dashboard.dart' show DashColors, poppins;
+import 'home_shell.dart';
 import 'onboarding.dart';
 
+/// Splash -> Onboarding (pertama kali) -> Dashboard. Tanpa halaman login.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -31,30 +32,40 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future<void>.delayed(const Duration(milliseconds: 1400));
     if (!mounted) return;
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute<void>(builder: (_) => seen ? const LoginScreen() : const OnboardingScreen()),
+      MaterialPageRoute<void>(builder: (_) => seen ? const HomeShell() : const OnboardingScreen()),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: AppColors.brownDark,
+    return Scaffold(
+      backgroundColor: DashColors.bg,
       body: SafeArea(
         child: Column(
           children: [
-            Spacer(),
-            Seal(size: 88),
-            SizedBox(height: 20),
-            Text('Super Apps Polri',
-                style: TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w700, letterSpacing: -0.3)),
-            SizedBox(height: 6),
-            Text('Layanan kepolisian dalam satu genggaman',
-                style: TextStyle(color: Color(0xFFD9CCB6), fontSize: 14)),
-            Spacer(),
-            SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2.4, color: AppColors.goldLight)),
-            SizedBox(height: 28),
-            Text('Versi demo', style: TextStyle(color: Color(0xFFA8987E), fontSize: 12)),
-            SizedBox(height: 16),
+            const Spacer(),
+            Container(
+              width: 104,
+              height: 104,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(colors: [DashColors.headerA, DashColors.headerB]),
+              ),
+              child: Image.asset(
+                'assets/logo/polri.png',
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) => const Center(child: Seal(size: 64, color: Color(0xFF6B4E06))),
+              ),
+            ),
+            const SizedBox(height: 22),
+            Text('Super Apps Polri', style: poppins(24, weight: FontWeight.w700)),
+            const SizedBox(height: 6),
+            Text('Layanan kepolisian dalam satu genggaman', style: poppins(13.5, color: const Color(0xFFB9B2A0))),
+            const Spacer(),
+            const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2.4, color: DashColors.gold)),
+            const SizedBox(height: 28),
+            Text('Versi demo', style: poppins(12, color: DashColors.navGrey)),
+            const SizedBox(height: 16),
           ],
         ),
       ),

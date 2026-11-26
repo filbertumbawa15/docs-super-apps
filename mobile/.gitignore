@@ -14,3 +14,7 @@ test/
 .idea/
 .metadata
 pubspec.lock
+
+# Foto profil pribadi: jangan di-commit (repo publik)
+assets/profile/*
+!assets/profile/.gitkeep

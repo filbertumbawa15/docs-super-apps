@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../data/sample.dart';
+import 'credential_detail.dart';
 import 'wallet.dart';
 
 /// Bottom sheet "semua layanan" (dibuka dari titik tiga di Jelajahi Layanan).
@@ -65,6 +67,7 @@ const _sections = [
     _Item('Layanan Kesehatan', Icons.add_circle_outline),
     _Item('Kantor Polisi', Icons.local_police_outlined),
     _Item('Info Terkini', Icons.feed_outlined),
+    _Item('VC SKCK', Icons.verified_outlined, action: 'vc'),
   ]),
   _Section('Pengecekan', [
     _Item('SKCK', Icons.article_outlined, action: 'wallet'),
@@ -95,6 +98,11 @@ class _LayananSheetState extends State<_LayananSheet> {
   }
 
   void _tap(BuildContext ctx, _Item it) {
+    if (it.action == 'vc') {
+      Navigator.of(ctx).pop();
+      Navigator.of(ctx).push(MaterialPageRoute<void>(builder: (_) => CredentialDetailScreen(cred: credentials.first)));
+      return;
+    }
     if (it.action == 'wallet') {
       Navigator.of(ctx).pop();
       Navigator.of(ctx).push(MaterialPageRoute<void>(builder: (_) => const WalletScreen()));

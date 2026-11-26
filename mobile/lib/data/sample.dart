@@ -65,7 +65,8 @@ class Citizen {
   String get maskedNik => nik.length == 16 ? '${nik.substring(0, 6)}••••••${nik.substring(12)}' : nik;
 }
 
-const citizen = Citizen('Bima Prasetyo', '0000000026112501');
+const citizen = Citizen('Denice', '0000000026112501');
+const profilePhoto = 'assets/profile/foto.jpg';
 const issuerName = 'Kepolisian Negara Republik Indonesia';
 
 final credentials = <Credential>[
@@ -76,13 +77,13 @@ final credentials = <Credential>[
     title: 'Surat Keterangan Catatan Kepolisian',
     subtitle: 'LUAR NEGERI · Studi di luar negeri',
     number: 'SKCK-2026-0912502',
-    holder: 'BIMA PRASETYO',
+    holder: 'DENICE',
     issuer: issuerName,
     validFrom: DateTime(2026, 11, 23),
     validUntil: DateTime(2027, 5, 25),
     attributes: const [
       Attr('nomor_skck', 'Nomor SKCK', 'open', 'SKCK-2026-0912502'),
-      Attr('nama_lengkap', 'Nama Lengkap', 'normal', 'BIMA PRASETYO'),
+      Attr('nama_lengkap', 'Nama Lengkap', 'normal', 'DENICE'),
       Attr('jenis_kelamin', 'Jenis Kelamin', 'normal', 'LAKI-LAKI'),
       Attr('kebangsaan', 'Kebangsaan', 'normal', 'INDONESIA'),
       Attr('agama', 'Agama', 'normal', 'ISLAM'),
@@ -107,13 +108,13 @@ final credentials = <Credential>[
     title: 'Izin Keramaian',
     subtitle: 'Pertemuan · Pertemuan warga RW 05',
     number: 'IK-2026-000073',
-    holder: 'BIMA PRASETYO',
+    holder: 'DENICE',
     issuer: issuerName,
     validFrom: DateTime(2026, 11, 23),
     validUntil: DateTime(2026, 12, 6),
     attributes: const [
       Attr('nomor_izin', 'Nomor Izin', 'open', 'IK-2026-000073'),
-      Attr('nama_penanggung_jawab', 'Penanggung Jawab', 'normal', 'BIMA PRASETYO'),
+      Attr('nama_penanggung_jawab', 'Penanggung Jawab', 'normal', 'DENICE'),
       Attr('nama_kegiatan', 'Nama Kegiatan', 'normal', 'PERTEMUAN WARGA RW 05'),
       Attr('jenis_kegiatan', 'Jenis Kegiatan', 'normal', 'PERTEMUAN'),
       Attr('tanggal_peninjauan', 'Tanggal Peninjauan', 'normal', '2026-11-26'),
