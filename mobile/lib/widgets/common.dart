@@ -35,7 +35,10 @@ IconData iconFor(String name) {
 const _bulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 String fmtDate(DateTime? d) => d == null ? '-' : '${d.day.toString().padLeft(2, '0')} ${_bulan[d.month - 1]} ${d.year}';
 
-/// Logo lingkaran sederhana (placeholder sampai logo resmi dipasang).
+/// Satu path logo untuk seluruh aplikasi.
+const kPolriLogo = 'assets/logo/polri.png';
+
+/// Logo Polri dari [kPolriLogo]; ikon perisai bila file tidak ada.
 class Seal extends StatelessWidget {
   final double size;
   final Color color;
@@ -43,12 +46,18 @@ class Seal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Image.asset(
+      kPolriLogo,
       width: size,
       height: size,
-      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: color, width: 1.5)),
-      alignment: Alignment.center,
-      child: Icon(Icons.shield_outlined, size: size * 0.55, color: color),
+      fit: BoxFit.contain,
+      errorBuilder: (_, __, ___) => Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: color, width: 1.5)),
+        alignment: Alignment.center,
+        child: Icon(Icons.shield_outlined, size: size * 0.55, color: color),
+      ),
     );
   }
 }

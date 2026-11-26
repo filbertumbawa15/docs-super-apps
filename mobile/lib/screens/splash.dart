@@ -44,19 +44,7 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           children: [
             const Spacer(),
-            Container(
-              width: 104,
-              height: 104,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(colors: [DashColors.headerA, DashColors.headerB]),
-              ),
-              child: Image.asset(
-                'assets/logo/polri.png',
-                fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => const Center(child: Seal(size: 64, color: Color(0xFF6B4E06))),
-              ),
-            ),
+            const Seal(size: 132, color: DashColors.gold),
             const SizedBox(height: 22),
             Text('Super Apps Polri', style: poppins(24, weight: FontWeight.w700)),
             const SizedBox(height: 6),

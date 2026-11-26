@@ -237,13 +237,7 @@ class VcCardDark extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Container(
-                            width: 28,
-                            height: 28,
-                            decoration: const BoxDecoration(shape: BoxShape.circle, color: DashColors.gold),
-                            child: Image.asset('assets/logo/polri.png',
-                                errorBuilder: (_, __, ___) => const Center(child: Seal(size: 22, color: Color(0xFF6B4E06)))),
-                          ),
+                          const Seal(size: 32, color: DashColors.gold),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text('KEPOLISIAN NEGARA\nREPUBLIK INDONESIA',

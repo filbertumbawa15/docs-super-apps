@@ -14,6 +14,7 @@ cd mobile
 flutter create --platforms=android --org id.polri.demo --project-name super_apps_polri_demo .
 rm -rf test
 flutter pub get
+dart run flutter_launcher_icons   # ikon aplikasi dari logo Polri
 flutter run            # ke HP/emulator
 flutter build apk      # hasil: build/app/outputs/flutter-apk/app-release.apk
 ```
@@ -40,3 +41,7 @@ flutter run --dart-define=NIK=<nik-uji> --dart-define=APP_ID=<app-id> --dart-def
   dan `android:usesCleartextTraffic="true"` pada tag `<application>`.
 - Bila API gagal dijangkau, aplikasi menampilkan data contoh dengan keterangan di layar.
 - Atribut yang tidak ada di API (agama, alamat, dll.) tetap data contoh, ditandai "contoh".
+
+## Logo
+Satu path untuk semua logo di aplikasi: `assets/logo/polri.png` (splash, kartu VC, poster).
+Ikon aplikasi dibuat dari `assets/logo/app_icon.png` dan `app_icon_foreground.png`.
