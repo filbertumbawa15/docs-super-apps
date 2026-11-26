@@ -6,7 +6,8 @@ class Attr {
   final String label;
   final String minimization; // open | normal | restricted
   final String value;
-  const Attr(this.name, this.label, this.minimization, this.value);
+  final String source; // api | demo
+  const Attr(this.name, this.label, this.minimization, this.value, {this.source = 'demo'});
 }
 
 enum CredKind { skck, izinKeramaian }
@@ -23,6 +24,9 @@ class Credential {
   final DateTime validFrom;
   final DateTime? validUntil;
   final List<Attr> attributes;
+  final String? validityOverride; // mis. 'expired' dari estimated_validity_status
+  final String applicationStatus;
+  final bool fromApi;
 
   const Credential({
     required this.id,
@@ -36,6 +40,9 @@ class Credential {
     required this.validFrom,
     required this.validUntil,
     required this.attributes,
+    this.validityOverride,
+    this.applicationStatus = 'completed',
+    this.fromApi = false,
   });
 
   int? get daysRemaining {
@@ -47,6 +54,7 @@ class Credential {
 
   /// active | soon | expired
   String get validity {
+    if (validityOverride != null) return validityOverride!;
     final d = daysRemaining;
     if (d == null) return 'active';
     if (d < 0) return 'expired';
@@ -69,8 +77,10 @@ const citizen = Citizen('Denice', '0000000026112501');
 const profilePhoto = 'assets/profile/foto.jpg';
 const issuerName = 'Kepolisian Negara Republik Indonesia';
 
-final credentials = <Credential>[
-  Credential(
+/// Daftar kredensial di dompet. SKCK diganti data API saat SkckRepo.load() berhasil.
+final credentials = <Credential>[sampleSkck, sampleIzin];
+
+final sampleSkck = Credential(
     id: 'skck-01M88FSD82AZ6FCJ97N58C8CNV',
     kind: CredKind.skck,
     vct: 'id.idctf.skck.1',
@@ -100,8 +110,9 @@ final credentials = <Credential>[
       Attr('end_date', 'Berlaku sampai Tanggal', 'normal', '2027-05-25'),
       Attr('foto', 'Foto', 'restricted', '(foto pemegang)'),
     ],
-  ),
-  Credential(
+  );
+
+final sampleIzin = Credential(
     id: 'ik-73',
     kind: CredKind.izinKeramaian,
     vct: 'id.idctf.izin-keramaian.1',
@@ -120,8 +131,7 @@ final credentials = <Credential>[
       Attr('tanggal_peninjauan', 'Tanggal Peninjauan', 'normal', '2026-11-26'),
       Attr('status', 'Status', 'open', 'JADWAL DIKONFIRMASI'),
     ],
-  ),
-];
+  );
 
 class Service {
   final String name;

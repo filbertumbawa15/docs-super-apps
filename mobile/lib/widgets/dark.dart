@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../data/sample.dart';
+import '../data/skck_repo.dart';
 import '../screens/dashboard.dart' show DashColors, poppins;
 import 'common.dart' show Seal, fmtDate;
 
@@ -298,4 +299,49 @@ class VcCardDark extends StatelessWidget {
               style: poppins(big ? 14 : 11, weight: FontWeight.w600, color: big ? Colors.white : DashColors.goldSoft)),
         ],
       );
+}
+
+
+/// Baris status sumber data VC SKCK (API / memuat / data contoh + coba lagi).
+class SourceBanner extends StatelessWidget {
+  const SourceBanner({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<String>(
+      valueListenable: SkckRepo.status,
+      builder: (_, st, __) {
+        final (IconData icon, Color c, String text) = switch (st) {
+          'api' => (Icons.cloud_done_outlined, const Color(0xFF3DDC5C), SkckRepo.message),
+          'fallback' => (Icons.cloud_off_outlined, DashColors.gold, SkckRepo.message),
+          'loading' => (Icons.sync, DashColors.goldSoft, 'Memuat data SKCK dari API...'),
+          _ => (Icons.info_outline, DashColors.navGrey, 'Data contoh'),
+        };
+        return Container(
+          padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
+          decoration: BoxDecoration(
+            color: c.withAlpha(22),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: c.withAlpha(90)),
+          ),
+          child: Row(
+            children: [
+              if (st == 'loading')
+                SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: c))
+              else
+                Icon(icon, size: 18, color: c),
+              const SizedBox(width: 10),
+              Expanded(child: Text(text, style: poppins(11.5, color: c, height: 1.4))),
+              if (st == 'fallback' || st == 'api')
+                TextButton(
+                  onPressed: SkckRepo.load,
+                  style: TextButton.styleFrom(minimumSize: const Size(0, 32), padding: const EdgeInsets.symmetric(horizontal: 8)),
+                  child: Text(st == 'api' ? 'Muat ulang' : 'Coba lagi', style: poppins(11.5, weight: FontWeight.w600, color: DashColors.gold)),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }

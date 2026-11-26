@@ -22,3 +22,21 @@ Folder `android/` sengaja tidak di-commit; dibuat oleh `flutter create`.
 ## Foto profil
 Taruh foto di `assets/profile/foto.jpg` sebelum `flutter run`. Folder ini sengaja tidak di-commit
 karena repo publik. Tanpa foto, avatar menampilkan inisial nama.
+
+## Data VC SKCK dari API
+
+Saat dashboard dibuka, aplikasi memanggil `POST {API_BASE}/api/v1/external/service-applications/lookup`
+dengan body `{"nik": NIK, "services": ["skck"]}`. NIK, App-Id, dan Access-Key **tidak** disimpan
+di repo (repo publik); berikan saat menjalankan:
+
+```powershell
+flutter run --dart-define=NIK=<nik-uji> --dart-define=APP_ID=<app-id> --dart-define=ACCESS_KEY=<access-key>
+# opsional: --dart-define=API_BASE=http://<host>/admin-be
+```
+
+- HP harus bisa menjangkau host API (GlobalProtect aktif di HP).
+- `android/app/src/main/AndroidManifest.xml` perlu izin internet dan `http://`:
+  tambahkan `<uses-permission android:name="android.permission.INTERNET"/>` di dalam `<manifest>`,
+  dan `android:usesCleartextTraffic="true"` pada tag `<application>`.
+- Bila API gagal dijangkau, aplikasi menampilkan data contoh dengan keterangan di layar.
+- Atribut yang tidak ada di API (agama, alamat, dll.) tetap data contoh, ditandai "contoh".

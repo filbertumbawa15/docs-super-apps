@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../data/sample.dart';
+import '../data/skck_repo.dart';
 import '../widgets/common.dart' show fmtDate;
 import '../widgets/dark.dart';
 import 'dashboard.dart' show DashColors, poppins;
@@ -12,6 +13,19 @@ class CredentialDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return ValueListenableBuilder<String>(
+      valueListenable: SkckRepo.status,
+      builder: (context, _, __) {
+        // SKCK contoh otomatis diganti data API begitu tersedia.
+        final c = cred.kind == CredKind.skck && !cred.fromApi
+            ? credentials.firstWhere((x) => x.kind == CredKind.skck, orElse: () => cred)
+            : cred;
+        return _build(context, c);
+      },
+    );
+  }
+
+  Widget _build(BuildContext context, Credential cred) {
     final isSkck = cred.kind == CredKind.skck;
     final total = cred.validUntil == null ? 0 : cred.validUntil!.difference(cred.validFrom).inDays;
     final left = (cred.daysRemaining ?? 0).clamp(0, total == 0 ? 1 : total);
@@ -28,6 +42,14 @@ class CredentialDetailScreen extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
         children: [
           VcCardDark(cred: cred),
+          if (isSkck) ...[const SizedBox(height: 12), const SourceBanner()],
+          if (cred.applicationStatus != 'completed') ...[
+            const SizedBox(height: 10),
+            GoldPanel(
+              child: Text('Status pengajuan: ${cred.applicationStatus}. Kredensial berlaku penuh setelah SKCK terbit (completed).',
+                  style: poppins(12, color: DashColors.gold, height: 1.4)),
+            ),
+          ],
           const SizedBox(height: 18),
           GoldPanel(
             child: Column(
@@ -170,7 +192,15 @@ class _AttrRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          DarkMinTag(attr.minimization),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              DarkMinTag(attr.minimization),
+              const SizedBox(height: 4),
+              Text(attr.source == 'api' ? 'API' : 'contoh',
+                  style: poppins(9.5, weight: FontWeight.w600, color: attr.source == 'api' ? const Color(0xFF3DDC5C) : DashColors.navGrey)),
+            ],
+          ),
         ],
       ),
     );

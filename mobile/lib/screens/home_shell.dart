@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../data/skck_repo.dart';
 import 'dashboard.dart';
 import 'layanan_sheet.dart';
 import 'profile.dart';
@@ -19,6 +20,7 @@ class _HomeShellState extends State<HomeShell> {
   @override
   void initState() {
     super.initState();
+    SkckRepo.load();
     if (widget.openLayanan) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) showLayananSheet(context);

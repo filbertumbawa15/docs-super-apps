@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../data/sample.dart';
+import '../data/skck_repo.dart';
 import '../widgets/common.dart' show fmtDate;
 import '../widgets/dark.dart';
 import 'credential_detail.dart';
@@ -13,9 +14,13 @@ class WalletScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return DarkPage(
       title: 'Dompet Kredensial',
-      body: ListView(
+      body: ValueListenableBuilder<String>(
+        valueListenable: SkckRepo.status,
+        builder: (context, _, __) => ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
         children: [
+          const SourceBanner(),
+          const SizedBox(height: 16),
           for (final c in credentials) ...[
             VcCardDark(
               cred: c,
@@ -57,6 +62,7 @@ class WalletScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }

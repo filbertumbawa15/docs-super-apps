@@ -32,6 +32,10 @@ jobs:
           flutter create --platforms=android --org id.polri.demo --project-name super_apps_polri_demo .
           rm -rf test
           sed -i 's/android:label="[^"]*"/android:label="Super Apps Polri (Demo)"/' android/app/src/main/AndroidManifest.xml
+          # Izin internet + izinkan http:// (API admin-be memakai http)
+          sed -i 's#<manifest xmlns:android="http://schemas.android.com/apk/res/android">#&\n    <uses-permission android:name="android.permission.INTERNET"/>#' android/app/src/main/AndroidManifest.xml
+          sed -i 's#<application#<application android:usesCleartextTraffic="true"#' android/app/src/main/AndroidManifest.xml
+          grep -n "INTERNET\|usesCleartextTraffic" android/app/src/main/AndroidManifest.xml
 
       - run: flutter pub get
 
