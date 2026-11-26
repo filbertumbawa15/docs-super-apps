@@ -11,7 +11,7 @@ class DashColors {
   static const bg = Color(0xFF101320);
   static const card = Color(0xFF141827);
   static const inner = Color(0xFF10131F);
-  static const tile = Color(0xFF161A29);
+  static const tile = Color(0xFF131624);
   static const border = Color(0xFFF6C337);
   static const gold = Color(0xFFF7C538);
   static const goldPill = Color(0xFFDBAB26);
@@ -86,9 +86,9 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     final top = MediaQuery.of(context).padding.top;
     return ClipRRect(
-      borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(36)),
+      borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(42)),
       child: Container(
-        height: top + 64,
+        height: top + 55,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [DashColors.headerA, DashColors.headerA, DashColors.headerB],
@@ -100,13 +100,13 @@ class _Header extends StatelessWidget {
         child: Stack(
           children: [
             Positioned.fill(child: CustomPaint(painter: _CircuitPainter(DashColors.circuit.withAlpha(150)))),
-            Positioned(right: 150, top: top + 0, child: _ghostIcon(Icons.chat_bubble_outline, 44, -0.08)),
-            Positioned(right: 56, top: top + 20, child: _ghostIcon(Icons.credit_card, 62, 0)),
-            Positioned(right: 82, top: -18, child: _ghostIcon(Icons.phone_in_talk_outlined, 52, 0.1)),
-            Positioned(right: -14, top: top - 12, child: _ghostIcon(Icons.language, 44, 0)),
+            Positioned(right: 168, top: top - 16, child: _ghostIcon(Icons.chat_bubble_outline, 46, -0.08)),
+            Positioned(right: 128, top: top + 10, child: _ghostIcon(Icons.credit_card, 64, 0)),
+            Positioned(right: 104, top: -20, child: _ghostIcon(Icons.phone_in_talk_outlined, 56, 0.1)),
+            Positioned(right: 18, top: top - 26, child: _ghostIcon(Icons.language, 60, 0.05)),
             Positioned(
               left: 25,
-              top: top + 4,
+              top: (top - 22).clamp(8.0, 200.0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -132,7 +132,7 @@ class _Header extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(name, style: poppins(22, weight: FontWeight.w700, color: const Color(0xFF1B1B1B), height: 1.15)),
+                        Text(name, style: poppins(20, weight: FontWeight.w700, color: const Color(0xFF1B1B1B), height: 1.15)),
                         const SizedBox(height: 10),
                         Container(
                           width: 8,
@@ -296,7 +296,7 @@ class _ExploreCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _GoldCard(
-      padding: const EdgeInsets.fromLTRB(26, 26, 18, 20),
+      padding: const EdgeInsets.fromLTRB(24, 22, 16, 18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -307,9 +307,9 @@ class _ExploreCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Jelajahi Layanan', style: poppins(20, weight: FontWeight.w700, height: 1.2)),
+                    Text('Jelajahi Layanan', maxLines: 1, style: poppins(16.5, weight: FontWeight.w700, height: 1.2)),
                     const SizedBox(height: 4),
-                    Text('Mau urus apa hari ini?', style: poppins(14, color: DashColors.goldSoft)),
+                    Text('Mau urus apa hari ini?', maxLines: 1, style: poppins(12, color: DashColors.goldSoft)),
                   ],
                 ),
               ),
@@ -320,13 +320,13 @@ class _ExploreCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                   onTap: onSearch,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.search, size: 20, color: Color(0xFF1B1B1B)),
-                        const SizedBox(width: 8),
-                        Text('Cari disini', style: poppins(15, weight: FontWeight.w500, color: const Color(0xFF1B1B1B))),
+                        const Icon(Icons.search, size: 18, color: Color(0xFF1B1B1B)),
+                        const SizedBox(width: 6),
+                        Text('Cari disini', style: poppins(13.5, weight: FontWeight.w500, color: const Color(0xFF1B1B1B))),
                       ],
                     ),
                   ),
@@ -334,9 +334,9 @@ class _ExploreCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 14),
           Container(
-            padding: const EdgeInsets.fromLTRB(12, 14, 12, 14),
+            padding: const EdgeInsets.fromLTRB(10, 12, 10, 10),
             decoration: BoxDecoration(
               color: DashColors.inner,
               borderRadius: BorderRadius.circular(24),
@@ -376,7 +376,7 @@ class _ServiceItem extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
       onTap: onTap,
       child: SizedBox(
-        width: 56,
+        width: 54,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -398,13 +398,13 @@ class _ServiceItem extends StatelessWidget {
                         ),
                       ),
                     )
-                  : Icon(icon, size: 30, color: DashColors.goldIcon),
+                  : Icon(icon, size: 28, color: DashColors.goldIcon),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 7),
             SizedBox(
-              height: 18,
+              height: 16,
               child: Text(label,
-                  maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center, style: poppins(12.5, weight: FontWeight.w500)),
+                  maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center, style: poppins(11, weight: FontWeight.w500)),
             ),
           ],
         ),
@@ -421,17 +421,17 @@ class _HistoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _GoldCard(
-      padding: const EdgeInsets.fromLTRB(26, 18, 26, 24),
+      padding: const EdgeInsets.fromLTRB(24, 16, 22, 20),
       child: Column(
         children: [
           Row(
             children: [
-              Expanded(child: Text('Riwayat Aktivitas', style: poppins(20, weight: FontWeight.w700))),
+              Expanded(child: Text('Riwayat Aktivitas', maxLines: 1, style: poppins(16.5, weight: FontWeight.w700))),
               _ArrowPill(onTap: onOpen),
             ],
           ),
-          const SizedBox(height: 18),
-          Text('Belum ada riwayat', style: poppins(15)),
+          const SizedBox(height: 14),
+          Text('Belum ada riwayat', style: poppins(12.5)),
         ],
       ),
     );
@@ -466,11 +466,11 @@ class _DiscoveryCard extends StatelessWidget {
                   const SizedBox(height: 2),
                   Row(
                     children: [
-                      Expanded(child: Text('Discovery', style: poppins(21, weight: FontWeight.w700, color: DashColors.gold))),
+                      Expanded(child: Text('Discovery', maxLines: 1, softWrap: false, overflow: TextOverflow.visible, style: poppins(17.5, weight: FontWeight.w700, color: DashColors.gold))),
                       _ArrowPill(onTap: onOpen),
                     ],
                   ),
-                  const SizedBox(height: 22),
+                  const SizedBox(height: 30),
                   const Expanded(
                     child: _Poster(asset: 'assets/discovery/2.png', subtitle: '', icon: Icons.airplanemode_active, caption: 'SIAP MENJAGA KEAMANAN\nNUSANTARA MELALUI UDARA'),
                   ),
@@ -582,7 +582,7 @@ class SuperNavBar extends StatelessWidget {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(top: 30),
-                      child: Text('Dial 110', textAlign: TextAlign.center, style: poppins(13.5, weight: FontWeight.w500, color: DashColors.navGrey)),
+                      child: Text('Dial 110', textAlign: TextAlign.center, style: poppins(12, weight: FontWeight.w500, color: DashColors.navGrey)),
                     ),
                   ),
                   _navItem(2, Icons.history, Icons.history, 'Riwayat'),
@@ -629,9 +629,9 @@ class SuperNavBar extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(sel ? active : inactive, size: 28, color: sel ? DashColors.navActive : DashColors.navGrey),
+            Icon(sel ? active : inactive, size: 26, color: sel ? DashColors.navActive : DashColors.navGrey),
             const SizedBox(height: 4),
-            Text(label, style: poppins(13.5, weight: FontWeight.w500, color: sel ? Colors.white : DashColors.navGrey)),
+            Text(label, style: poppins(12, weight: FontWeight.w500, color: sel ? Colors.white : DashColors.navGrey)),
           ],
         ),
       ),
