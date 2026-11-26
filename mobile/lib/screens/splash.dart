@@ -98,7 +98,7 @@ class _GoldText extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = poppins(size, weight: FontWeight.w800, height: 1.1).copyWith(
       letterSpacing: 0.4,
-      shadows: [Shadow(color: const Color(0xFFE8B92A).withAlpha(110), blurRadius: 14)],
+      shadows: [Shadow(color: const Color(0xFFE8B92A).withAlpha(70), blurRadius: 12)],
     );
     return ShaderMask(
       blendMode: BlendMode.srcIn,
