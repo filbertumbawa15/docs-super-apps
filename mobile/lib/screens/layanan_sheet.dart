@@ -121,14 +121,14 @@ class _LayananSheetState extends State<_LayananSheet> {
           body: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 18, 16, 6),
+                padding: const EdgeInsets.fromLTRB(8, 18, 16, 6),
                 child: Row(
                   children: [
                     IconButton(
                       onPressed: () => Navigator.of(context).pop(),
                       icon: const Icon(Icons.arrow_back, color: Colors.white, size: 26),
                     ),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: 2),
                     Expanded(flex: 59, child: _searchField()),
                     const SizedBox(width: 9),
                     Expanded(flex: 41, child: _wilayahField()),
@@ -144,7 +144,7 @@ class _LayananSheetState extends State<_LayananSheet> {
                           for (final s in sections) ...[
                             Padding(
                               padding: const EdgeInsets.only(top: 14, bottom: 24),
-                              child: Text(s.title, style: _p(20, w: FontWeight.w700)),
+                              child: Text(s.title, style: _p(16.5, w: FontWeight.w700)),
                             ),
                             Wrap(
                               runSpacing: 22,
@@ -178,15 +178,15 @@ class _LayananSheetState extends State<_LayananSheet> {
   Widget _searchField() => _fieldBox(
         child: Row(
           children: [
-            const SizedBox(width: 14),
-            const Icon(Icons.search, color: _C.hint, size: 22),
+            const SizedBox(width: 12),
+            const Icon(Icons.search, color: _C.hint, size: 20),
             const SizedBox(width: 10),
             Expanded(
               child: TextField(
                 controller: _search,
                 onChanged: (v) => setState(() => _query = v),
                 cursorColor: _C.gold,
-                style: _p(15),
+                style: _p(13.5),
                 decoration: InputDecoration(
                   isCollapsed: true,
                   filled: false,
@@ -194,7 +194,7 @@ class _LayananSheetState extends State<_LayananSheet> {
                   enabledBorder: InputBorder.none,
                   focusedBorder: InputBorder.none,
                   hintText: 'Cari Layanan',
-                  hintStyle: _p(15, c: _C.hint),
+                  hintStyle: _p(13.5, c: _C.hint),
                 ),
               ),
             ),
@@ -216,14 +216,14 @@ class _LayananSheetState extends State<_LayananSheet> {
         child: _fieldBox(
           child: Row(
             children: [
-              const SizedBox(width: 12),
-              const Icon(Icons.location_on, color: _C.gold, size: 20),
+              const SizedBox(width: 10),
+              const Icon(Icons.location_on, color: _C.gold, size: 18),
               const SizedBox(width: 6),
               Expanded(
-                child: Text(_wilayahDipilih, maxLines: 1, overflow: TextOverflow.ellipsis, style: _p(14.5, w: FontWeight.w500)),
+                child: Text(_wilayahDipilih, maxLines: 1, overflow: TextOverflow.ellipsis, style: _p(13, w: FontWeight.w500)),
               ),
-              const Icon(Icons.keyboard_arrow_down, color: Colors.white, size: 20),
-              const SizedBox(width: 8),
+              const Icon(Icons.keyboard_arrow_down, color: Colors.white, size: 18),
+              const SizedBox(width: 6),
             ],
           ),
         ),
@@ -248,7 +248,7 @@ class _Tile extends StatelessWidget {
           children: [
             SizedBox(width: 64, height: 64, child: _icon()),
             const SizedBox(height: 12),
-            Text(item.label, textAlign: TextAlign.center, maxLines: 2, style: _p(13, w: FontWeight.w500, h: 1.3)),
+            Text(item.label, textAlign: TextAlign.center, maxLines: 2, style: _p(12, w: FontWeight.w500, h: 1.3)),
           ],
         ),
       ),
