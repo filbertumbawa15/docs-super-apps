@@ -54,3 +54,13 @@ Ikon aplikasi dibuat dari `assets/logo/app_icon.png` dan `app_icon_foreground.pn
 Saat aplikasi dibuka, aplikasi meminta token: `POST {ISSUER_TOKEN_URL}` (form-urlencoded,
 `grant_type=client_credentials`, `client_id`, `client_secret` dari `.env`) dan menyimpan
 `access_token` (berlaku `expires_in` detik). Status token terlihat di Profil → Token Issuer.
+
+## QR VC SKCK dari Issuer
+Tombol "Bagikan untuk verifikasi" membuat penawaran dan menampilkan QR dari Issuance API:
+1. `POST {ISSUER_API}/api/v1/offers` (Bearer `access_token`) dengan
+   `{"credential_type":"id.idctf.skck.1","subject_ref": SUBJECT_REF,"expires_in":600}` → `offer_id`
+2. `GET {ISSUER_API}/api/v1/offers/{offer_id}/qr.png` (Bearer) → gambar QR
+3. `GET {ISSUER_API}/api/v1/offers/{offer_id}` tiap 4 detik → status (diambil / kedaluwarsa / dibatalkan)
+
+Bila token ditolak (401), token diminta ulang sekali. `tx_code` (bila dikembalikan) ditampilkan
+di bawah QR karena wallet memintanya setelah QR dipindai.
