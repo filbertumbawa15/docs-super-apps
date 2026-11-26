@@ -449,7 +449,7 @@ class _DiscoveryCard extends StatelessWidget {
       fade: 0.8,
       padding: const EdgeInsets.fromLTRB(16, 16, 10, 0),
       child: SizedBox(
-        height: 300,
+        height: 360,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
