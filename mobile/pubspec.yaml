@@ -19,6 +19,7 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^4.0.0
   flutter_launcher_icons: ^0.14.1
+  flutter_native_splash: ^2.4.1
 
 flutter:
   uses-material-design: true
@@ -34,3 +35,13 @@ flutter_launcher_icons:
   image_path: "assets/logo/app_icon.png"
   adaptive_icon_background: "#101320"
   adaptive_icon_foreground: "assets/logo/app_icon_foreground.png"
+
+# Native splash (sebelum Flutter tampil) berwarna sama dengan layar pertama, tanpa kedip putih.
+# Jalankan: dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#131625"
+  android: true
+  ios: false
+  web: false
+  android_12:
+    color: "#131625"

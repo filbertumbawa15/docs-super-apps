@@ -30,6 +30,7 @@ class SuperAppsDemo extends StatelessWidget {
       home: switch (_startScreen()) {
         'dashboard' => const HomeShell(),
         'layanan' => const HomeShell(openLayanan: true),
+        'splash' => const SplashScreen(hold: true),
         'vc' => CredentialDetailScreen(cred: credentials.first),
         _ => const SplashScreen(),
       },

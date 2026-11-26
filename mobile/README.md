@@ -15,6 +15,7 @@ flutter create --platforms=android --org id.polri.demo --project-name super_apps
 rm -rf test
 flutter pub get
 dart run flutter_launcher_icons   # ikon aplikasi dari logo Polri
+dart run flutter_native_splash:create   # latar biru tua saat aplikasi dibuka
 flutter run            # ke HP/emulator
 flutter build apk      # hasil: build/app/outputs/flutter-apk/app-release.apk
 ```

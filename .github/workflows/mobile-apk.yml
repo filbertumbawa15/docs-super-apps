@@ -40,7 +40,9 @@ jobs:
       - run: flutter pub get
 
       - name: Ikon aplikasi dari logo Polri
-        run: dart run flutter_launcher_icons
+        run: |
+          dart run flutter_launcher_icons
+          dart run flutter_native_splash:create
 
       - name: Analyze (gagal hanya bila ada error)
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
@@ -81,7 +83,7 @@ jobs:
           const { chromium } = require('playwright');
           (async () => {
             const b = await chromium.launch();
-            for (const s of ['dashboard', 'layanan', 'vc']) {
+            for (const s of ['splash', 'dashboard', 'layanan', 'vc']) {
               const p = await b.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3 });
               await p.goto('http://127.0.0.1:8080/?start=' + s, { waitUntil: 'networkidle' });
               await p.waitForTimeout(8000);
@@ -92,7 +94,7 @@ jobs:
           })();
           JS
           node shot.js
-          for s in dashboard layanan vc; do
+          for s in splash dashboard layanan vc; do
             echo "-----BEGIN ${s} PNG-----"
             base64 -w 76 $s.png
             echo "-----END ${s} PNG-----"
