@@ -83,7 +83,7 @@ final credentials = <Credential>[sampleSkck, sampleIzin];
 final sampleSkck = Credential(
     id: 'skck-01M88FSD82AZ6FCJ97N58C8CNV',
     kind: CredKind.skck,
-    vct: 'id.idctf.skck.1',
+    vct: 'id.idctf.skck.3',
     title: 'Surat Keterangan Catatan Kepolisian',
     subtitle: 'LUAR NEGERI · Studi di luar negeri',
     number: 'SKCK-2026-0912502',
