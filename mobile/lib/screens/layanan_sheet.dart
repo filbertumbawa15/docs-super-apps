@@ -52,7 +52,7 @@ const _sections = [
   _Section('Darurat', [
     _Item('110 Video Call', Icons.videocam_outlined),
     _Item('110 Dial Call', Icons.phone_in_talk, filled: true),
-    _Item('110 Chat Whatsapp', Icons.whatsapp, filled: true),
+    _Item('110 Chat Whatsapp', Icons.chat, filled: true),
     _Item('110 VOIP Call', Icons.wifi_calling_3, filled: true),
     _Item('110 Live Chat', Icons.mark_unread_chat_alt, filled: true),
     _Item('SOS', null, sos: true),
