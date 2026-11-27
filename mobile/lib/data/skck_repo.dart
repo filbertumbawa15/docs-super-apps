@@ -124,7 +124,7 @@ class SkckRepo {
     return Credential(
       id: 'skck-${r['id']}',
       kind: CredKind.skck,
-      vct: 'id.idctf.skck.3',
+      vct: 'id.idctf.skck.4',
       title: 'Surat Keterangan Catatan Kepolisian',
       subtitle: [classification, purpose].where((s) => s.isNotEmpty).join(' · '),
       number: '${r['registration_number'] ?? '-'}',

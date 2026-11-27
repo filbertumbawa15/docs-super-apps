@@ -9,7 +9,7 @@ import 'skck_repo.dart';
 
 /// Penawaran kredensial (OpenID4VCI) di Issuance API.
 ///   POST {ISSUER_API}/api/v1/offers                 (Bearer access_token)
-///        {"credential_type":"id.idctf.skck.3","subject_ref":SUBJECT_REF,"expires_in":600}
+///        {"credential_type":"id.idctf.skck.4","subject_ref":SUBJECT_REF,"expires_in":600}
 ///   GET  {ISSUER_API}/api/v1/offers/{offer_id}/qr.png (Bearer access_token)
 ///   GET  {ISSUER_API}/api/v1/offers/{offer_id}        (status: used / expired / invalidated)
 ///
@@ -17,7 +17,7 @@ import 'skck_repo.dart';
 class IssuerOffers {
   static const apiBase = Variables.issuerApi;
   static const _subjectRefEnv = Variables.subjectRef;
-  static const credentialType = 'id.idctf.skck.3';
+  static const credentialType = 'id.idctf.skck.4';
 
   static String get subjectRef => _subjectRefEnv.isNotEmpty ? _subjectRefEnv : SkckRepo.nik;
   static String get _base => apiBase.replaceAll(RegExp(r'/+$'), '');

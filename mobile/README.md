@@ -59,7 +59,7 @@ Saat aplikasi dibuka, aplikasi meminta token (`POST {issuerTokenUrl}`, form-urle
 ## QR VC SKCK dari Issuer
 Tombol "Bagikan untuk verifikasi" membuat penawaran dan menampilkan QR dari Issuance API:
 1. `POST {ISSUER_API}/api/v1/offers` (Bearer `access_token`) dengan
-   `{"credential_type":"id.idctf.skck.3","subject_ref": SUBJECT_REF,"expires_in":600}` → `offer_id`
+   `{"credential_type":"id.idctf.skck.4","subject_ref": SUBJECT_REF,"expires_in":600}` → `offer_id`
 2. `GET {ISSUER_API}/api/v1/offers/{offer_id}/qr.png` (Bearer) → gambar QR
 3. `GET {ISSUER_API}/api/v1/offers/{offer_id}` tiap 4 detik → status (diambil / kedaluwarsa / dibatalkan)
 
